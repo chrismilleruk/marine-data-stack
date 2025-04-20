@@ -78,16 +78,15 @@ services:
     container_name: avnav
     ports:
       - "8080:8080"      # AVNav web interface
-      - "8081:8081"      # NMEA over TCP (input)
+      - "8081:8081"      # NMEA over TCP (input) 
       - "8082:8082"      # NMEA over TCP (output)
     volumes:
-      - ./avnav/avnav_server.xml:/user/avnav_server.xml:ro  # Mount config file
-      - avnav-data:/data   # For internal data
-      - avnav-user:/user   # For user settings
-      - avnav-charts:/charts  # For your nautical charts
+      # - ./avnav/avnav_server.xml:/home/avnav/.avnav/avnav_server.xml:ro  # Configuration file
+      - ./volumes/avnav-home:/home/avnav/avnav  # AVNav user settings
+      - ./volumes/avnav-charts:/home/avnav/charts  # For charts
     environment:
       - TZ=UTC
-    restart: on-failure:3
+    restart: unless-stopped
     networks:
       - marine-network
     depends_on:
@@ -98,8 +97,7 @@ volumes:
   influxdb-data:
   influxdb-config:
   grafana-data:
-  avnav-data:
-  avnav-user:
+  avnav-home:
   avnav-charts:
 
 networks:

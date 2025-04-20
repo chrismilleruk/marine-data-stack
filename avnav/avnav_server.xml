@@ -24,26 +24,17 @@
                   port="8081"
                   host=""
                   filter=""/>
-                  
-  <!-- GPSD connector, enable if you have a local GPSD server -->
-  <!--
-  <AVNGpsdFeeder name="gpsd-feeder"
-                enabled="false"
-                gpsdHost="localhost"
-                gpsdPort="2947"
-                filter=""/>
-  -->
   
   <!-- Chart directories -->
   <AVNChartDir name="charts" 
-              dirname="/charts" 
+              dirname="/home/avnav/charts" 
               leg="org"/>
               
   <AVNChartDir name="user-maps" 
-              dirname="/user/maps" 
+              dirname="/home/avnav/avnav/user/maps" 
               leg="user"/>
               
   <!-- Track and route directories -->
-  <AVNTrackDir name="tracks" dirname="/user/tracks"/>
-  <AVNRouteDir name="routes" dirname="/user/routes"/>
+  <AVNTrackDir name="tracks" dirname="/home/avnav/avnav/user/tracks"/>
+  <AVNRouteDir name="routes" dirname="/home/avnav/avnav/user/routes"/>
 </AVNServer>
