@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<AVNServer>
+  <AVNConfig logLevel="INFO" 
+            httpPort="8080"
+            navUrl=""/>
+  <AVNHttpServer enabled="true" htmlDir="/usr/lib/avnav/server/web"/>
+  
+  <!-- TCP connection to SignalK -->
+  <AVNSocketReader name="signalk-data"
+                  enabled="true"
+                  host="signalk" 
+                  port="10110"
+                  filter=""/>
+                  
+  <!-- TCP listener for external NMEA data -->
+  <AVNSocketWriter name="nmea-out"
+                  enabled="true"
+                  port="8082"
+                  filter=""/>
+                  
+  <!-- TCP listener for input -->
+  <AVNSocketReader name="tcp-input"
+                  enabled="true"
+                  port="8081"
+                  host=""
+                  filter=""/>
+                  
+  <!-- GPSD connector, enable if you have a local GPSD server -->
+  <!--
+  <AVNGpsdFeeder name="gpsd-feeder"
+                enabled="false"
+                gpsdHost="localhost"
+                gpsdPort="2947"
+                filter=""/>
+  -->
+  
+  <!-- Chart directories -->
+  <AVNChartDir name="charts" 
+              dirname="/charts" 
+              leg="org"/>
+              
+  <AVNChartDir name="user-maps" 
+              dirname="/user/maps" 
+              leg="user"/>
+              
+  <!-- Track and route directories -->
+  <AVNTrackDir name="tracks" dirname="/user/tracks"/>
+  <AVNRouteDir name="routes" dirname="/user/routes"/>
+</AVNServer>

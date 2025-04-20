@@ -50,7 +50,7 @@ services:
       - CLOUD_INFLUXDB_TOKEN=${CLOUD_INFLUXDB_TOKEN:-}
     depends_on:
       - influxdb
-    restart: unless-stopped
+    restart: on-failure:3
     networks:
       - marine-network
 
@@ -71,11 +71,36 @@ services:
     networks:
       - marine-network
 
+  avnav:
+    build:
+      context: ./avnav  # Directory containing the Dockerfile
+      dockerfile: Dockerfile
+    container_name: avnav
+    ports:
+      - "8080:8080"      # AVNav web interface
+      - "8081:8081"      # NMEA over TCP (input)
+      - "8082:8082"      # NMEA over TCP (output)
+    volumes:
+      - ./avnav/avnav_server.xml:/user/avnav_server.xml:ro  # Mount config file
+      - avnav-data:/data   # For internal data
+      - avnav-user:/user   # For user settings
+      - avnav-charts:/charts  # For your nautical charts
+    environment:
+      - TZ=UTC
+    restart: on-failure:3
+    networks:
+      - marine-network
+    depends_on:
+      - signalk
+
 volumes:
   signalk-config:
   influxdb-data:
   influxdb-config:
   grafana-data:
+  avnav-data:
+  avnav-user:
+  avnav-charts:
 
 networks:
   marine-network:
