@@ -1,0 +1,15 @@
+
+http:
+  routers:
+    influxdb:
+      rule: "PathPrefix(`/influxdb`)"
+      service: "influxdb"
+      priority: 10
+      middlewares:
+        - "strip-influxdb"
+      
+  services:
+    influxdb:
+      loadBalancer:
+        servers:
+          - url: "http://influxdb:8086"

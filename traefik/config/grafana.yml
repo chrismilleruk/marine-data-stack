@@ -1,0 +1,15 @@
+
+http:
+  routers:
+    grafana:
+      rule: "PathPrefix(`/grafana`)"
+      service: "grafana"
+      priority: 10
+      middlewares:
+        - "strip-grafana"
+      
+  services:
+    grafana:
+      loadBalancer:
+        servers:
+          - url: "http://grafana:3000"

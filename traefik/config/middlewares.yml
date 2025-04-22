@@ -1,0 +1,17 @@
+# config/middlewares.yml
+http:
+  middlewares:
+    strip-influxdb:
+      stripPrefix:
+        prefixes: 
+          - "/influxdb"
+        
+    strip-grafana:
+      stripPrefix:
+        prefixes:
+          - "/grafana"
+        
+    strip-avnav:
+      stripPrefix:
+        prefixes:
+          - "/avnav"

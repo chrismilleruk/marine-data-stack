@@ -1,0 +1,13 @@
+
+http:
+  routers:
+    signalk:
+      rule: "PathPrefix(`/`)"
+      service: "signalk"
+      priority: 1
+    
+  services:
+    signalk:
+      loadBalancer:
+        servers:
+          - url: "http://signalk:3000"
