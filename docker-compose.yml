@@ -1,4 +1,4 @@
-version: '3'
+version: '2.4'
 
 services:
   signalk:
@@ -10,8 +10,8 @@ services:
       - "10110:10110"    # NMEA 0183 TCP output
       - "8443:8443"      # HTTPS
     volumes:
-      - ./volumes/signalk-config:/home/node/.signalk  # Settings persistence
-      - ./volumes/nmea-logs:/home/node/.signalk/logs  # Map logs directory to host
+      - signalk-config:/home/node/.signalk  # Settings persistence
+      - nmea-logs:/home/node/.signalk/logs  # Map logs directory to host
     environment:
       - NMEA0183PORT=10110
       - SIGNALK_NODE_VERSION=latest
@@ -25,8 +25,8 @@ services:
     ports:
       - "8086:8086"      # InfluxDB UI and API
     volumes:
-      - ./volumes/influxdb-data:/var/lib/influxdb2
-      - ./volumes/influxdb-config:/etc/influxdb2
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
       - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USERNAME:-admin}
@@ -40,19 +40,19 @@ services:
     networks:
       - marine-network
 
-  telegraf:
-    image: telegraf:1.28
-    container_name: telegraf
-    volumes:
-      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
-    environment:
-      - INFLUX_TOKEN=${INFLUXDB_ADMIN_TOKEN}
-      - CLOUD_INFLUXDB_TOKEN=${CLOUD_INFLUXDB_TOKEN:-}
-    depends_on:
-      - influxdb
-    restart: on-failure:3
-    networks:
-      - marine-network
+  # telegraf:
+  #   image: telegraf:1.28
+  #   container_name: telegraf
+  #   volumes:
+  #     - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+  #   environment:
+  #     - INFLUX_TOKEN=${INFLUXDB_ADMIN_TOKEN}
+  #     - CLOUD_INFLUXDB_TOKEN=${CLOUD_INFLUXDB_TOKEN:-}
+  #   depends_on:
+  #     - influxdb
+  #   restart: on-failure:3
+  #   networks:
+  #     - marine-network
 
   grafana:
     image: grafana/grafana:latest
@@ -60,7 +60,7 @@ services:
     ports:
       - "3001:3000"      # Grafana UI (mapped to 3001 to avoid conflict with SignalK)
     volumes:
-      - ./volumes/grafana-data:/var/lib/grafana
+      - grafana-data:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
@@ -82,8 +82,8 @@ services:
       - "8082:8082"      # NMEA over TCP (output)
     volumes:
       # - ./avnav/avnav_server.xml:/home/avnav/.avnav/avnav_server.xml:ro  # Configuration file
-      - ./volumes/avnav-home:/home/avnav/avnav  # AVNav user settings
-      - ./volumes/avnav-charts:/home/avnav/charts  # For charts
+      - avnav-home:/home/avnav/avnav  # AVNav user settings
+      - avnav-charts:/home/avnav/charts  # For charts
     environment:
       - TZ=UTC
     restart: unless-stopped
@@ -93,6 +93,7 @@ services:
       - signalk
 
 volumes:
+  nmea-logs:
   signalk-config:
   influxdb-data:
   influxdb-config:
