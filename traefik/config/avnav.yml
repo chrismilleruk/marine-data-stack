@@ -1,0 +1,15 @@
+
+http:
+  routers:
+    avnav:
+      rule: "PathPrefix(`/avnav`)"
+      service: "avnav"
+      priority: 10
+      middlewares:
+        - "strip-avnav"
+      
+  services:
+    avnav:
+      loadBalancer:
+        servers:
+          - url: "http://avnav:8080"

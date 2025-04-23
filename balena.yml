@@ -1,0 +1,38 @@
+name: marine-data-test-fleet
+type: sw.application
+version: 0.0.2
+description: >-
+  Containerized marine data stack for monitoring and analyzing marine data
+  (NMEA0183, InfluxDB, Grafana) using balenaOS. This application is designed
+  for use with the Raspberry Pi 4 and Raspberry Pi 5. It includes a SignalK
+  server, InfluxDB for time-series data storage, and Grafana for data
+  visualization. The application is built using Docker containers and is
+  optimized for performance and reliability. 
+assets:
+  repository:
+    type: blob.asset
+    data:
+      url: 'https://github.com/chrismilleruk/marine-data-stack'
+  logo:
+    type: blob.asset
+    data:
+      url: >-
+        https://raw.githubusercontent.com/balenalabs/balena-sound/master/logo.png
+data:
+  applicationEnvironmentVariables:
+    - ADMINUSER: admin:Strong_p@ssword
+    - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: SEcure@random€&t0ken
+    - DOCKER_INFLUXDB_INIT_BUCKET: signalk
+    - DOCKER_INFLUXDB_INIT_MODE: setup
+    - DOCKER_INFLUXDB_INIT_ORG: marine
+    - DOCKER_INFLUXDB_INIT_PASSWORD: Strong_p@ssword
+    - DOCKER_INFLUXDB_INIT_USERNAME: admin
+    - GF_SECURITY_ADMIN_PASSWORD: Str0ng~PASSword
+    - GF_SECURITY_ADMIN_USER: admin
+    - GF_SERVER_ROOT_URL: /grafana/
+    - GF_SERVER_SERVE_FROM_SUB_PATH: true
+    - TUNNEL_TOKEN: eyJhIjoiNGY4OTI2M2MyMjdhYzVjNzA1
+  defaultDeviceType: raspberrypi5
+  supportedDeviceTypes:
+    - raspberrypi4-64
+    - raspberrypi5

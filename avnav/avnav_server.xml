@@ -2,7 +2,8 @@
 <AVNServer>
   <AVNConfig logLevel="INFO" 
             httpPort="8080"
-            navUrl=""/>
+            navUrl=""
+            debugToLog="true"/>
   <AVNHttpServer enabled="true" htmlDir="/usr/lib/avnav/server/web"/>
   
   <!-- TCP connection to SignalK -->
@@ -37,4 +38,7 @@
   <!-- Track and route directories -->
   <AVNTrackDir name="tracks" dirname="/home/avnav/avnav/user/tracks"/>
   <AVNRouteDir name="routes" dirname="/home/avnav/avnav/user/routes"/>
+  
+  <!-- Log directory -->
+  <AVNLog name="main" dirname="/home/avnav/avnav/log"/>
 </AVNServer>
