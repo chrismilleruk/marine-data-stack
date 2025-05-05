@@ -4,6 +4,7 @@ services:
   signalk:
     image: signalk/signalk-server:latest
     container_name: signalk
+    privileged: true # required for UDEV to find plugged in peripherals such as a USB mouse
     ports:
       - "3000"      # Web interface (internal only)
       - "8375:8375"      # NMEA 0183 TCP input
@@ -44,7 +45,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3000"      # Grafana UI (internal only)
+      - "8000"      # Grafana UI (internal only)
     volumes:
       - grafana-data:/var/lib/grafana
     environment:
@@ -86,6 +87,17 @@ services:
       tunnel --no-autoupdate run
 
 
+  browser:
+    image: bh.cr/g_lucas_houssa/browser
+    # image: bh.cr/balenalabs/browser-aarch64 # where <arch> is one of aarch64, arm32 or amd64
+    privileged: true # required for UDEV to find plugged in peripherals such as a USB mouse
+    ports:
+        - '5011' # management API (optional)
+        - '35173' # Chromium debugging port (optional)
+    volumes:
+      - 'browser-settings:/data' # Only required if using PERSISTENT flag (see below)
+      
+
 volumes:
   signalk-config:
   signalk-logs:
@@ -94,3 +106,4 @@ volumes:
   grafana-data:
   avnav-home:
   avnav-charts:
+  browser-settings:

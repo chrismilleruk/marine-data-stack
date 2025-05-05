@@ -1,6 +1,6 @@
 name: marine-data-test-fleet
 type: sw.application
-version: 0.0.2
+version: 0.1.0
 description: >-
   Containerized marine data stack for monitoring and analyzing marine data
   (NMEA0183, InfluxDB, Grafana) using balenaOS. This application is designed
@@ -31,8 +31,8 @@ data:
     - GF_SECURITY_ADMIN_USER: admin
     - GF_SERVER_ROOT_URL: /grafana/
     - GF_SERVER_SERVE_FROM_SUB_PATH: true
-    - TUNNEL_TOKEN: eyJhIjoiNGY4OTI2M2MyMjdhYzVjNzA1
-  defaultDeviceType: raspberrypi5
-  supportedDeviceTypes:
-    - raspberrypi4-64
-    - raspberrypi5
+    - TUNNEL_TOKEN: eyJhCLOUDFLARE_TOKENjNzA1
+    - ENABLE_GPU: 1
+    - FORCE_RESOLUTION: 1280x800
+    - LAUNCH_URL: http://avnav:8080
+    - WINDOW_SIZE: 1280,800
