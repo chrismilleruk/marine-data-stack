@@ -1,4 +1,4 @@
-name: marine-data-test-fleet
+name: marine-data-stack
 type: sw.application
 version: 0.1.0
 description: >-
@@ -33,6 +33,14 @@ data:
     - GF_SERVER_SERVE_FROM_SUB_PATH: true
     - TUNNEL_TOKEN: eyJhCLOUDFLARE_TOKENjNzA1
     - ENABLE_GPU: 1
-    - FORCE_RESOLUTION: 1280x800
+    - FORCE_RESOLUTION: 
     - LAUNCH_URL: http://avnav:8080
     - WINDOW_SIZE: 1280,800
+    - TELEGRAF_INFLUX_URL_LIST: "https://eu-central-1-1.aws.cloud2.influxdata.com"
+    - TELEGRAF_INFLUX_TOKEN: "0KTOKENmOug=="
+    - TELEGRAF_INFLUX_ORG: Blacksheep
+    - TELEGRAF_INFLUX_BUCKET: signalk
+  defaultDeviceType: raspberrypi5
+  supportedDeviceTypes:
+    - raspberrypi4-64
+    - raspberrypi5

@@ -1,44 +1,54 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" ?>
 <AVNServer>
-  <AVNConfig logLevel="INFO" 
-            httpPort="8080"
-            navUrl=""
-            debugToLog="true"/>
-  <AVNHttpServer enabled="true" htmlDir="/usr/lib/avnav/server/web"/>
-  
+  <AVNConfig logLevel="INFO"
+    httpPort="8080"
+    navUrl=""
+    debugToLog="true"
+    ownMMSI="550005559"/>
+  <AVNHttpServer enabled="true"
+    htmlDir="/usr/lib/avnav/server/web"/>
   <!-- TCP connection to SignalK -->
   <AVNSocketReader name="signalk-data"
-                  enabled="true"
-                  host="signalk" 
-                  port="10110"
-                  filter=""/>
-                  
+    enabled="False"
+    host="signalk"
+    port="10110"
+    filter=""/>
   <!-- TCP listener for external NMEA data -->
-  <AVNSocketWriter name="nmea-out"
-                  enabled="true"
-                  port="8082"
-                  filter=""/>
-                  
-  <!-- TCP listener for input -->
-  <AVNSocketReader name="tcp-input"
-                  enabled="true"
-                  port="8081"
-                  host=""
-                  filter=""/>
-  
+  <AVNSocketWriter name="nmea0183tosignalk"
+    enabled="true"
+    port="8082"
+    filter=""
+    read="True"
+    address="0.0.0.0"/>
   <!-- Chart directories -->
-  <AVNChartDir name="charts" 
-              dirname="/home/avnav/charts" 
-              leg="org"/>
-              
-  <AVNChartDir name="user-maps" 
-              dirname="/home/avnav/avnav/user/maps" 
-              leg="user"/>
-              
+  <AVNChartDir name="charts"
+    dirname="/home/avnav/charts"
+    leg="org"/>
+  <AVNChartDir name="user-maps"
+    dirname="/home/avnav/avnav/user/maps"
+    leg="user"/>
   <!-- Track and route directories -->
-  <AVNTrackDir name="tracks" dirname="/home/avnav/avnav/user/tracks"/>
-  <AVNRouteDir name="routes" dirname="/home/avnav/avnav/user/routes"/>
-  
+  <AVNTrackDir name="tracks"
+    dirname="/home/avnav/avnav/user/tracks"/>
+  <AVNRouteDir name="routes"
+    dirname="/home/avnav/avnav/user/routes"/>
   <!-- Log directory -->
-  <AVNLog name="main" dirname="/home/avnav/avnav/log"/>
+  <AVNLog name="main"
+    dirname="/home/avnav/avnav/log"/>
+  <AVNSignalKHandler uuid="40e5f7c1-4dba-4b50-a1bc-b2a6d020ebc4"
+    migrated="True"
+    host="signalk"
+    decodeData="True"
+    fetchAis="True"
+    ignoreTimestamp="True"
+    fetchCharts="False"
+    sendData="True"
+    password="Strong_p@ssword"
+    receiveNotifications="True"
+    sendWp="True"
+    name="skbs.st.gd"/>
+  <AVNAvahi enabled="False"/>
+  <AVNRouter computeAPB="True"
+    useRhumbLine="True"
+    nextWpMode="early"/>
 </AVNServer>

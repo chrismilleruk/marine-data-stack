@@ -1,4 +1,5 @@
-FROM debian:bullseye-slim
+# FROM debian:bullseye-slim
+FROM balenalib/raspberrypi5-debian:bullseye-run
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive

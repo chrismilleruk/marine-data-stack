@@ -54,6 +54,7 @@ services:
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-worldmap-panel
       # - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-/grafana/}
       # - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SERVER_HTTP_PORT=8000
     depends_on:
       - influxdb
     restart: unless-stopped
