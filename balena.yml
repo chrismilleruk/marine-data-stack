@@ -1,6 +1,6 @@
 name: marine-data-stack
 type: sw.application
-version: 0.1.0
+version: 0.1.2
 description: >-
   Containerized marine data stack for monitoring and analyzing marine data
   (NMEA0183, InfluxDB, Grafana) using balenaOS. This application is designed

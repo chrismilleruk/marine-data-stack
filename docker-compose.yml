@@ -1,3 +1,18 @@
+# Marine Data Stack for Balena Devices
+# This docker-compose stack runs on a Raspberry Pi 4 (or similar) managed by Balena
+# It collects marine/boat data locally and syncs to InfluxDB Cloud
+#
+# Services:
+# - SignalK: Marine data server collecting NMEA data
+# - InfluxDB: Local time-series database for data storage
+# - Grafana: Local visualization dashboard
+# - AVNav: Marine navigation software
+# - Telegraf: Syncs local InfluxDB data to InfluxDB Cloud
+# - Browser: Kiosk browser for displaying dashboards
+#
+# Environment variables are managed through Balena device/fleet variables
+# Data flow: NMEA devices -> SignalK -> Local InfluxDB -> Telegraf -> Cloud InfluxDB
+
 version: '2'
 
 services:
@@ -6,8 +21,8 @@ services:
     container_name: signalk
     privileged: true # required for UDEV to find plugged in peripherals such as a USB mouse
     ports:
-      - "3000"      # Web interface (internal only)
-      - "8375:8375"      # NMEA 0183 TCP input
+      - "3000:3000"      # Web interface (external)
+      - "8375"      # NMEA 0183 TCP input
       - "10110:10110"    # NMEA 0183 TCP output
       - "8443:8443"      # HTTPS
     volumes:
@@ -66,9 +81,9 @@ services:
       context: ./avnav
     container_name: avnav
     ports:
-      - "8080"      # AVNav web interface (internal only)
-      - "8081:8081"      # NMEA over TCP (input) 
-      - "8082:8082"      # NMEA over TCP (output)
+      - "8080:8080"      # AVNav web interface (external)
+      - "8081"      # NMEA over TCP (input) 
+      - "8082"      # NMEA over TCP (output)
     volumes:
       - avnav-home:/home/avnav/avnav  # AVNav user settings
       - avnav-charts:/home/avnav/charts  # For charts
@@ -81,15 +96,33 @@ services:
     labels:
       io.balena.features.supervisor-api: '1'
 
-    
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    command:
-      tunnel --no-autoupdate run
-
+  telegraf:
+    build:
+      context: ./telegraf
+      dockerfile: Dockerfile
+    container_name: telegraf
+    # environment:
+      # # Local InfluxDB settings
+      # - LOCAL_INFLUX_TOKEN=${LOCAL_INFLUX_TOKEN}
+      # - LOCAL_INFLUX_ORG=${LOCAL_INFLUX_ORG:-marine}
+      # - LOCAL_INFLUX_BUCKET=${LOCAL_INFLUX_BUCKET:-signalk}
+      # # Cloud InfluxDB settings
+      # - CLOUD_INFLUX_URL=${CLOUD_INFLUX_URL}
+      # - CLOUD_INFLUX_TOKEN=${CLOUD_INFLUX_TOKEN}
+      # - CLOUD_INFLUX_ORG=${CLOUD_INFLUX_ORG}
+      # - CLOUD_INFLUX_BUCKET=${CLOUD_INFLUX_BUCKET}
+      # # Device name from Balena
+      # - BALENA_DEVICE_NAME_AT_INIT=${BALENA_DEVICE_NAME_AT_INIT:-marine-device}
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+    labels:
+      io.balena.features.supervisor-api: '1'
 
   browser:
-    image: bh.cr/g_lucas_houssa/browser
+    build:
+      context: ./browser
+    # image: bh.cr/g_lucas_houssa/browser
     # image: bh.cr/balenalabs/browser-aarch64 # where <arch> is one of aarch64, arm32 or amd64
     privileged: true # required for UDEV to find plugged in peripherals such as a USB mouse
     ports:
@@ -97,7 +130,15 @@ services:
         - '35173' # Chromium debugging port (optional)
     volumes:
       - 'browser-settings:/data' # Only required if using PERSISTENT flag (see below)
-      
+    devices:
+      - /dev/bus/usb:/dev/bus/usb  # USB devices access
+      - /dev/input:/dev/input      # Input devices access
+    environment:
+      - UDEV=on  # Enable udev for device detection
+      - DISPLAY_NUM=0  # Display number
+    labels:
+      io.balena.features.kernel-modules: '1'  # Access to kernel modules
+      io.balena.features.firmware: '1'        # Access to firmware
 
 volumes:
   signalk-config:
