@@ -143,6 +143,35 @@ services:
       io.balena.features.kernel-modules: '1'  # Access to kernel modules
       io.balena.features.firmware: '1'        # Access to firmware
 
+  syncthing:
+    image: syncthing/syncthing:latest
+    container_name: syncthing
+    hostname: marine-syncthing
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+    volumes:
+      # Syncthing configuration
+      - syncthing-config:/var/syncthing/config
+      # Access to all other service volumes for synchronization
+      - signalk-config:/sync/signalk-config
+      - signalk-logs:/sync/signalk-logs
+      - influxdb-data:/sync/influxdb-data
+      - influxdb-config:/sync/influxdb-config
+      - grafana-data:/sync/grafana-data
+      - avnav-home:/sync/avnav-home
+      - avnav-charts:/sync/avnav-charts
+      - browser-settings:/sync/browser-settings
+    ports:
+      - "8384:8384"  # Web UI
+      - "22000:22000/tcp"  # Sync protocol
+      - "22000:22000/udp"  # Sync protocol
+      - "21027:21027/udp"  # Discovery
+    restart: unless-stopped
+    labels:
+      io.balena.features.supervisor-api: '1'
+
 volumes:
   signalk-config:
   signalk-logs:
@@ -152,3 +181,4 @@ volumes:
   avnav-home:
   avnav-charts:
   browser-settings:
+  syncthing-config:
