@@ -1,23 +1,26 @@
 # Telegraf Configuration for Marine Data Stack
 
-This directory contains Telegraf configurations for syncing data between local and cloud InfluxDB instances.
+This directory contains Telegraf configurations for receiving data from SignalK and forwarding it to InfluxDB Cloud.
+
+## Architecture
+
+SignalK sends data to:
+1. Local InfluxDB (port 8086) - for local storage and Grafana dashboards
+2. Telegraf influxdb_listener (port 8186) - which forwards to InfluxDB Cloud v3
+
+This approach avoids the need to sync data from InfluxDB, as SignalK can send to multiple endpoints.
 
 ## Configuration Files
 
-1. **telegraf.conf** - Main configuration for continuous data sync
-2. **migrate-historic-data.conf** - Bulk historic data migration (for paid plans)
-3. **migrate-historic-rate-limited.sh** - Rate-limited migration script for free tier
+1. **telegraf.conf** - Main configuration for receiving SignalK data and forwarding to cloud
+2. **migrate-historic-data.conf** - (Deprecated) Bulk historic data migration 
+3. **migrate-historic-rate-limited.sh** - (Deprecated) Rate-limited migration script
 
 ## Environment Variables Required
 
 Create a `.env` file in the project root with:
 
 ```bash
-# Local InfluxDB Configuration
-LOCAL_INFLUX_TOKEN=your-local-influx-token
-LOCAL_INFLUX_ORG=marine
-LOCAL_INFLUX_BUCKET=signalk
-
 # Cloud InfluxDB Configuration
 CLOUD_INFLUX_URL=https://us-west-2-1.aws.cloud2.influxdata.com
 CLOUD_INFLUX_TOKEN=your-cloud-influx-token
@@ -30,11 +33,11 @@ BALENA_DEVICE_NAME_AT_INIT=my-boat-name
 
 ## Usage
 
-### Continuous Data Sync
+### Continuous Data Forwarding
 
 The main `telegraf.conf` is configured to:
-- Read recent data (last 5 minutes) from local InfluxDB every minute
-- Write this data to your cloud InfluxDB instance
+- Listen on port 8186 for InfluxDB line protocol data from SignalK
+- Forward this data to your InfluxDB Cloud v3 instance
 - Run continuously as part of the docker-compose stack
 
 To start:
@@ -42,50 +45,22 @@ To start:
 docker-compose up -d telegraf
 ```
 
-### One-Time Historic Data Migration
+### SignalK Configuration
 
-The migration script is designed to run inside the Telegraf container on your Balena device where all environment variables are already configured.
+Configure SignalK to send data to both:
+1. Local InfluxDB: `http://influxdb:8086`
+2. Telegraf: `http://telegraf:8186`
 
-```bash
-# SSH into your Balena device
-balena ssh <device-name>
+In SignalK, add a second InfluxDB writer plugin instance pointing to `http://telegraf:8186`.
 
-# Enter the Telegraf container
-docker-compose exec telegraf /bin/bash
+### Getting Your InfluxDB Cloud Token
 
-# Inside the container, run the migration script
-cd /etc/telegraf
-./migrate-historic-rate-limited.sh          # Migrate last 30 days
-./migrate-historic-rate-limited.sh 7        # Migrate last 7 days  
-./migrate-historic-rate-limited.sh 30 30   # Migrate days 30-60 ago
-./migrate-historic-rate-limited.sh 30 60   # Migrate days 60-90 ago
-```
-
-The script will:
-- Process data day by day to respect the 5MB/5min rate limit
-- Wait 2 minutes between each day's migration
-- Skip days without data automatically
-- Provide a detailed summary at the end
-- Suggest the command to continue with older data
-
-### Getting Your InfluxDB Tokens
-
-1. **Local InfluxDB Token**:
-   ```bash
-   # On the Balena device
-   docker exec -it influxdb influx auth list
-   ```
-
-2. **Cloud InfluxDB Token**:
-   - Log into your InfluxDB Cloud account
-   - Go to Data > Tokens
-   - Create a new token with read/write access to your bucket
+1. Log into your InfluxDB Cloud account
+2. Go to Data > Tokens
+3. Create a new token with write access to your bucket
 
 ## Notes
 
 - The continuous sync filters out "telegraf" measurements to avoid feedback loops
-- Historic migration runs once per invocation and processes the specified date range
-- The migration script respects the 5MB/5min rate limit for free tier accounts
-- Each day's data is migrated separately with 2-minute delays between days
 - Monitor the Telegraf logs for any errors: `docker logs telegraf`
-- If migrations fail due to rate limits, wait 5 minutes before retrying
+- InfluxDB Cloud v3 has different rate limits than v2, check your plan's limits

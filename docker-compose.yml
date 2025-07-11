@@ -7,11 +7,12 @@
 # - InfluxDB: Local time-series database for data storage
 # - Grafana: Local visualization dashboard
 # - AVNav: Marine navigation software
-# - Telegraf: Syncs local InfluxDB data to InfluxDB Cloud
+# - Telegraf: Receives data from SignalK and forwards to InfluxDB Cloud
 # - Browser: Kiosk browser for displaying dashboards
 #
 # Environment variables are managed through Balena device/fleet variables
-# Data flow: NMEA devices -> SignalK -> Local InfluxDB -> Telegraf -> Cloud InfluxDB
+# Data flow: NMEA devices -> SignalK -> Local InfluxDB (for local storage)
+#                                    -> Telegraf -> Cloud InfluxDB (for cloud sync)
 
 version: '2'
 
@@ -101,6 +102,8 @@ services:
       context: ./telegraf
       dockerfile: Dockerfile
     container_name: telegraf
+    ports:
+      - "8186"      # InfluxDB listener for SignalK data (internal only)
     # environment:
       # # Local InfluxDB settings
       # - LOCAL_INFLUX_TOKEN=${LOCAL_INFLUX_TOKEN}
