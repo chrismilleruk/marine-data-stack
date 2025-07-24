@@ -144,16 +144,14 @@ services:
       io.balena.features.firmware: '1'        # Access to firmware
 
   syncthing:
-    image: syncthing/syncthing:latest
+    image: lscr.io/linuxserver/syncthing:latest
     container_name: syncthing
     hostname: marine-syncthing
     environment:
-      - PUID=1000
-      - PGID=1000
       - TZ=UTC
     volumes:
       # Syncthing configuration
-      - syncthing-config:/var/syncthing/config
+      - syncthing-config:/config
       # Access to all other service volumes for synchronization
       - signalk-config:/sync/signalk-config
       - signalk-logs:/sync/signalk-logs
