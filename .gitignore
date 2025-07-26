@@ -1,3 +1,4 @@
 .env
 volumes/
 .DS_Store
+analysis/sailingpolar-env
