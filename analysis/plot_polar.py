@@ -99,18 +99,61 @@ def plot_basic(df, outfile):
 def plot_by_tack(df, outfile):
     plt.figure(figsize=(8, 8))
     ax = plt.subplot(111, polar=True)
+    
+    # Define colors for port and starboard
+    tack_colors = {'port': 'red', 'starboard': 'blue'}
+    
     for tack, group in df.groupby('tack'):
-        angles = np.radians(group['twa_bin'])
-        speeds = group['mean']
-        angle_sign = -1 if tack == 'port' else 1
-        ax.plot(angle_sign * angles, speeds, marker='o', label=f"{tack.capitalize()} Tack")
+        group = group.dropna(subset=['twa_bin', 'max'])
+        if len(group) < 2:
+            continue
+            
+        angles = np.radians(group['twa_bin'].values)
+        speeds = group['max'].values  # Use max speeds for optimistic polar
+        color = tack_colors[tack]
+        
+        # Sort by angle for proper interpolation
+        sort_idx = np.argsort(angles)
+        angles_sorted = angles[sort_idx]
+        speeds_sorted = speeds[sort_idx]
+        
+        # Create smooth interpolation
+        if len(angles_sorted) >= 3:
+            angle_fine = np.linspace(angles_sorted.min(), angles_sorted.max(), 100)
+            try:
+                degree = min(2, len(angles_sorted)-1)
+                coeffs = np.polyfit(angles_sorted, speeds_sorted, degree)
+                speed_fine = np.polyval(coeffs, angle_fine)
+                # Plot smooth line
+                ax.plot(angle_fine, speed_fine, color=color, linewidth=2, alpha=0.8)
+            except:
+                ax.plot(angles_sorted, speeds_sorted, color=color, linewidth=2, alpha=0.8)
+        
+        # Plot data points
+        ax.plot(angles_sorted, speeds_sorted, marker='o', markersize=4, color=color, 
+                label=f"{tack.capitalize()} Tack", linestyle='none')
+    
+    # Find optimal points for each tack
+    for tack in ['port', 'starboard']:
+        tack_group = df[df['tack'] == tack]
+        if len(tack_group) > 0:
+            # Find the fastest point for this tack
+            max_speed_idx = tack_group['max'].idxmax()
+            best_point = tack_group.loc[max_speed_idx]
+            angle_rad = np.radians(best_point['twa_bin'])
+            speed = best_point['max']
+            color = tack_colors[tack]
+            
+            ax.plot(angle_rad, speed, marker='*', markersize=12, color=color, 
+                    markeredgecolor='white', markeredgewidth=1, zorder=10)
+    
     ax.set_theta_zero_location('N')
     ax.set_theta_direction(-1)
-    ax.set_title("Polar Plot by Tack", va='bottom')
+    ax.set_title("Polar Plot by Tack\n★ = Best VMG Points", va='bottom')
     ax.set_rlabel_position(225)
     ax.set_xticks(np.radians(np.arange(0, 181, 30)))
     ax.set_xticklabels([f"{d}°" for d in range(0, 181, 30)])
-    ax.legend(loc='upper right', bbox_to_anchor=(1.2, 1.0))
+    ax.legend(loc='upper left', bbox_to_anchor=(-0.2, 1.0))
     plt.tight_layout()
     if outfile:
         plt.savefig(outfile)
