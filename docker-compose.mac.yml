@@ -1,0 +1,86 @@
+# Marine Data Stack for Mac Local Development
+# This docker-compose stack runs locally on macOS and uses synced data from /Users/cm/syncthings/Blacksheep
+#
+# Services:
+# - SignalK: Marine data server collecting NMEA data
+# - InfluxDB: Local time-series database for data storage
+# - AVNav: Marine navigation software
+#
+# This version is optimized for macOS and removes Linux-specific configurations
+
+version: '2'
+
+services:
+  signalk:
+    image: signalk/signalk-server:latest
+    container_name: signalk
+    ports:
+      - "3000:3000"      # Web interface (external)
+      - "8375"      # NMEA 0183 TCP input
+      - "10110:10110"    # NMEA 0183 TCP output
+      - "8443:8443"      # HTTPS
+    volumes:
+      - /Users/cm/syncthings/Blacksheep/signalk-config:/home/node/.signalk  # Local synced config
+      - signalk-logs:/home/node/.signalk/logs  # Map logs directory to host
+    environment:
+      - NMEA0183PORT=10110
+      - SIGNALK_NODE_VERSION=latest
+    restart: unless-stopped
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"      # InfluxDB UI and API (exposed for local access)
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=Strong_p@ssword
+      - DOCKER_INFLUXDB_INIT_ORG=marine
+      - DOCKER_INFLUXDB_INIT_BUCKET=signalk
+      - INFLUXDB_HTTP_AUTH_ENABLED=true
+      - INFLUXDB_REPORTING_DISABLED=true
+    restart: unless-stopped
+
+  avnav:
+    image: debian:bullseye-slim
+    container_name: avnav
+    ports:
+      - "8080:8080"      # AVNav web interface (external)
+      - "8081"      # NMEA over TCP (input) 
+      - "8082"      # NMEA over TCP (output)
+    volumes:
+      - avnav-home:/home/avnav/avnav  # AVNav user settings
+      - "/Users/cm/syncthings/Blacksheep/avnav routes:/home/avnav/charts/routes:ro"  # Local synced routes (read-only)
+      - "/Users/cm/syncthings/Blacksheep/avnav tracks:/home/avnav/charts/tracks:ro"  # Local synced tracks (read-only)
+      - ./avnav/avnav_server_mac.xml:/home/avnav/avnav_server.xml  # AVNav configuration for Mac
+    environment:
+      - TZ=UTC
+      - DEBIAN_FRONTEND=noninteractive
+    restart: unless-stopped
+    depends_on:
+      - signalk
+    # Install and setup AVNav on first run
+    command: >
+      sh -c "
+        if [ ! -f /usr/bin/avnav ]; then
+          apt-get update &&
+          apt-get install -y wget gpg apt-transport-https ca-certificates &&
+          wget -O - https://www.free-x.de/debian/oss.boating.gpg.key | gpg --dearmor > /usr/share/keyrings/oss.boating.gpg &&
+          echo 'deb [signed-by=/usr/share/keyrings/oss.boating.gpg] https://www.free-x.de/debian bullseye main contrib non-free' > /etc/apt/sources.list.d/boating.list &&
+          apt-get update &&
+          apt-get install -y avnav &&
+          mkdir -p /home/avnav/avnav/log /home/avnav/avnav/user/maps /home/avnav/avnav/user/tracks /home/avnav/avnav/user/routes /home/avnav/charts &&
+          chmod -R 777 /home/avnav
+        fi &&
+        avnav -t /home/avnav/avnav_server.xml
+      "
+
+volumes:
+  signalk-logs:
+  influxdb-data:
+  influxdb-config:
+  avnav-home: 

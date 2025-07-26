@@ -1,0 +1,120 @@
+# Marine Data Stack for Local Development
+# This docker-compose stack runs locally and uses synced data from /Users/cm/syncthings/Blacksheep
+#
+# Services:
+# - SignalK: Marine data server collecting NMEA data
+# - InfluxDB: Local time-series database for data storage
+# - Grafana: Local visualization dashboard
+# - AVNav: Marine navigation software
+# - Telegraf: Receives data from SignalK and forwards to InfluxDB Cloud
+# - Browser: Kiosk browser for displaying dashboards
+#
+# This version maps local synced data directories to container volumes
+
+version: '2'
+
+services:
+  signalk:
+    image: signalk/signalk-server:latest
+    container_name: signalk
+    privileged: true # required for UDEV to find plugged in peripherals such as a USB mouse
+    ports:
+      - "3000:3000"      # Web interface (external)
+      - "8375"      # NMEA 0183 TCP input
+      - "10110:10110"    # NMEA 0183 TCP output
+      - "8443:8443"      # HTTPS
+    volumes:
+      - /Users/cm/syncthings/Blacksheep/signalk-config:/home/node/.signalk  # Local synced config
+      - signalk-logs:/home/node/.signalk/logs  # Map logs directory to host
+    environment:
+      - NMEA0183PORT=10110
+      - SIGNALK_NODE_VERSION=latest
+    restart: unless-stopped
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"      # InfluxDB UI and API (exposed for local access)
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=Strong_p@ssword
+      - DOCKER_INFLUXDB_INIT_ORG=marine
+      - DOCKER_INFLUXDB_INIT_BUCKET=signalk
+      - INFLUXDB_HTTP_AUTH_ENABLED=true
+      - INFLUXDB_REPORTING_DISABLED=true
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "8000:8000"      # Grafana UI (exposed for local access)
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-worldmap-panel
+      - GF_SERVER_HTTP_PORT=8000
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+
+  avnav:
+    build:
+      context: ./avnav
+    container_name: avnav
+    ports:
+      - "8080:8080"      # AVNav web interface (external)
+      - "8081"      # NMEA over TCP (input) 
+      - "8082"      # NMEA over TCP (output)
+    volumes:
+      - avnav-home:/home/avnav/avnav  # AVNav user settings
+      - /Users/cm/syncthings/Blacksheep/avnav\ routes:/home/avnav/charts/routes  # Local synced routes
+      - /Users/cm/syncthings/Blacksheep/avnav\ tracks:/home/avnav/charts/tracks  # Local synced tracks
+    environment:
+      - TZ=UTC
+    restart: unless-stopped
+    privileged: true     # This can help with permission issues
+    depends_on:
+      - signalk
+
+  telegraf:
+    build:
+      context: ./telegraf
+      dockerfile: Dockerfile
+    container_name: telegraf
+    ports:
+      - "8186"      # InfluxDB listener for SignalK data (internal only)
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+
+  browser:
+    build:
+      context: ./browser
+    privileged: true # required for UDEV to find plugged in peripherals such as a USB mouse
+    ports:
+        - '5011:5011' # management API (exposed for local access)
+        - '35173:35173' # Chromium debugging port (exposed for local access)
+    volumes:
+      - 'browser-settings:/data' # Only required if using PERSISTENT flag (see below)
+    devices:
+      - /dev/bus/usb:/dev/bus/usb  # USB devices access
+      - /dev/input:/dev/input      # Input devices access
+    environment:
+      - UDEV=on  # Enable udev for device detection
+      - DISPLAY_NUM=0  # Display number
+
+volumes:
+  signalk-logs:
+  influxdb-data:
+  influxdb-config:
+  grafana-data:
+  avnav-home:
+  browser-settings: 

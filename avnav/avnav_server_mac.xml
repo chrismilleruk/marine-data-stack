@@ -27,14 +27,17 @@
   <AVNChartDir name="user-maps"
     dirname="/home/avnav/avnav/user/maps"
     leg="user"/>
-  <!-- Track and route directories -->
-  <AVNTrackDir name="tracks"
-    dirname="/home/avnav/avnav/user/tracks"/>
-  <AVNRouteDir name="routes"
-    dirname="/home/avnav/avnav/user/routes"/>
   <!-- Log directory -->
   <AVNLog name="main"
     dirname="/home/avnav/avnav/log"/>
+  <!-- Track Writer - Disabled for readonly tracks -->
+  <AVNTrackWriter writeFile="off"
+    trackdir="/home/avnav/charts/tracks"/>
+  <!-- Router configuration -->
+  <AVNRouter computeAPB="True"
+    useRhumbLine="True"
+    nextWpMode="early"
+    routesdir="/home/avnav/charts/routes"/>
   <AVNSignalKHandler uuid="40e5f7c1-4dba-4b50-a1bc-b2a6d020ebc4"
     migrated="True"
     host="signalk"
@@ -48,7 +51,4 @@
     sendWp="True"
     name="skbs.st.gd"/>
   <AVNAvahi enabled="False"/>
-  <AVNRouter computeAPB="True"
-    useRhumbLine="True"
-    nextWpMode="early"/>
-</AVNServer>
+</AVNServer> 
