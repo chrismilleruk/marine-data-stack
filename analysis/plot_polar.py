@@ -5,6 +5,79 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+def calculate_vmg(speed, angle):
+    """Calculate VMG (Velocity Made Good) toward windward"""
+    # Convert angle to radians
+    angle_rad = np.radians(angle)
+    # VMG = speed * cos(angle)
+    # For upwind: angle is 0-90 degrees, VMG = speed * cos(angle)
+    # For downwind: angle is 90-180 degrees, VMG = speed * cos(180-angle)
+    if angle <= 90:
+        # Upwind
+        vmg = speed * np.cos(angle_rad)
+        direction = "upwind"
+    else:
+        # Downwind
+        vmg = speed * np.cos(np.radians(180 - angle))
+        direction = "downwind"
+    return vmg, direction
+
+def find_optimal_vmg_points(df):
+    """Find optimal VMG points for each AWS bin"""
+    optimal_points = []
+    
+    # Group by AWS bin
+    aws_bins_raw = df['aws_bin'].dropna().unique()
+    aws_bins = sorted(aws_bins_raw, key=lambda x: float(x.split('-')[0]) if '-' in x else float(x))
+    
+    for aws_bin in aws_bins:
+        group = df[df['aws_bin'] == aws_bin]
+        group = group.dropna(subset=['twa_bin', 'max'])
+        
+        if len(group) < 3:
+            continue
+            
+        # Calculate VMG for each angle
+        vmg_data = []
+        for _, row in group.iterrows():
+            angle = row['twa_bin']
+            speed = row['max']
+            vmg, direction = calculate_vmg(speed, angle)
+            vmg_data.append({
+                'angle': angle,
+                'speed': speed,
+                'vmg': vmg,
+                'direction': direction
+            })
+        
+        vmg_df = pd.DataFrame(vmg_data)
+        
+        # Find optimal upwind angle
+        upwind = vmg_df[vmg_df['direction'] == 'upwind']
+        if len(upwind) > 0:
+            optimal_upwind = upwind.loc[upwind['vmg'].idxmax()]
+            optimal_points.append({
+                'aws_bin': aws_bin,
+                'angle': optimal_upwind['angle'],
+                'speed': optimal_upwind['speed'],
+                'vmg': optimal_upwind['vmg'],
+                'direction': 'upwind'
+            })
+            
+        # Find optimal downwind angle
+        downwind = vmg_df[vmg_df['direction'] == 'downwind']
+        if len(downwind) > 0:
+            optimal_downwind = downwind.loc[downwind['vmg'].idxmax()]
+            optimal_points.append({
+                'aws_bin': aws_bin,
+                'angle': optimal_downwind['angle'],
+                'speed': optimal_downwind['speed'],
+                'vmg': optimal_downwind['vmg'],
+                'direction': 'downwind'
+            })
+    
+    return optimal_points
+
 def plot_basic(df, outfile):
     angles = np.radians(df['twa_bin'])
     speeds = df['mean']
@@ -47,8 +120,14 @@ def plot_by_tack(df, outfile):
 def plot_by_aws(df, outfile):
     plt.figure(figsize=(8, 8))
     ax = plt.subplot(111, polar=True)
-    aws_bins = sorted(df['aws_bin'].dropna().unique())
+    # Sort AWS bins numerically instead of alphabetically
+    aws_bins_raw = df['aws_bin'].dropna().unique()
+    aws_bins = sorted(aws_bins_raw, key=lambda x: float(x.split('-')[0]) if '-' in x else float(x))
     colors = plt.cm.viridis(np.linspace(0, 1, len(aws_bins)))
+    
+    # Find optimal VMG points
+    optimal_points = find_optimal_vmg_points(df)
+    
     for aws_bin, color in zip(aws_bins, colors):
         group = df[df['aws_bin'] == aws_bin]
         # Remove rows with NaN values for interpolation
@@ -116,13 +195,62 @@ def plot_by_aws(df, outfile):
         # Plot original data points only (no straight lines)
         ax.plot(angles_sorted, speeds_sorted, marker='o', markersize=4, color=color, label=str(aws_bin), linestyle='none')
     
+    # Add star markers for optimal VMG points
+    for point in optimal_points:
+        angle_rad = np.radians(point['angle'])
+        speed = point['speed']
+        direction = point['direction']
+        aws_bin = point['aws_bin']
+        
+        # Find the color for this AWS bin
+        aws_bin_index = list(aws_bins).index(aws_bin)
+        color = colors[aws_bin_index]
+        
+        # Use different star styles for upwind vs downwind
+        if direction == 'upwind':
+            marker = '*'
+            markersize = 12
+        else:
+            marker = 's'
+            markersize = 10
+        
+        ax.plot(angle_rad, speed, marker=marker, markersize=markersize, color=color, 
+                markeredgecolor='white', markeredgewidth=1, zorder=10)
+    
     ax.set_theta_zero_location('N')
     ax.set_theta_direction(-1)
-    ax.set_title("Polar Plot by Apparent Wind Speed (AWS)", va='bottom')
+    ax.set_title("Polar Plot by Apparent Wind Speed (AWS)\n★ = Best Upwind VMG, ■ = Best Downwind VMG", va='bottom')
     ax.set_rlabel_position(225)
     ax.set_xticks(np.radians(np.arange(0, 181, 30)))
     ax.set_xticklabels([f"{d}°" for d in range(0, 181, 30)])
-    ax.legend(loc='upper right', bbox_to_anchor=(1.2, 1.0))
+    
+    # Create enhanced legend with optimal angles
+    legend_elements = []
+    
+    # Add AWS bin entries
+    for aws_bin, color in zip(aws_bins, colors):
+        legend_elements.append(plt.Line2D([0], [0], marker='o', color=color, label=aws_bin, linestyle='none'))
+    
+    # Add optimal VMG entries
+    legend_elements.append(plt.Line2D([0], [0], marker='*', color='gray', label='Optimal Upwind Angles:', linestyle='none', markersize=10))
+    for point in optimal_points:
+        if point['direction'] == 'upwind':
+            aws_bin_index = list(aws_bins).index(point['aws_bin'])
+            color = colors[aws_bin_index]
+            legend_elements.append(plt.Line2D([0], [0], marker='*', color=color, 
+                                            label=f"  {point['aws_bin']}: {point['angle']:.0f}° ({point['vmg']:.1f}kt)", 
+                                            linestyle='none', markersize=8))
+    
+    legend_elements.append(plt.Line2D([0], [0], marker='s', color='gray', label='Optimal Downwind Angles:', linestyle='none', markersize=8))
+    for point in optimal_points:
+        if point['direction'] == 'downwind':
+            aws_bin_index = list(aws_bins).index(point['aws_bin'])
+            color = colors[aws_bin_index]
+            legend_elements.append(plt.Line2D([0], [0], marker='s', color=color, 
+                                            label=f"  {point['aws_bin']}: {point['angle']:.0f}° ({point['vmg']:.1f}kt)", 
+                                            linestyle='none', markersize=6))
+    
+    ax.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(-0.2, 1.0))
     plt.tight_layout()
     if outfile:
         plt.savefig(outfile)
