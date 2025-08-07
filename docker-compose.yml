@@ -169,6 +169,7 @@ services:
     restart: unless-stopped
     labels:
       io.balena.features.supervisor-api: '1'
+    user: "0:0"
 
 volumes:
   signalk-config:
