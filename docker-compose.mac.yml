@@ -7,6 +7,8 @@
 # - AVNav: Marine navigation software
 #
 # This version is optimized for macOS and removes Linux-specific configurations
+# Services:
+# - nmea-test-rig: NMEA replay server streaming Dublin Bay race data
 
 version: '2'
 
@@ -16,8 +18,7 @@ services:
     container_name: signalk
     ports:
       - "3000:3000"      # Web interface (external)
-      - "8375"      # NMEA 0183 TCP input
-      - "10110:10110"    # NMEA 0183 TCP output
+      - "8375"           # NMEA 0183 TCP input
       - "8443:8443"      # HTTPS
     volumes:
       - /Users/cm/syncthings/Blacksheep/signalk-config:/home/node/.signalk  # Local synced config
@@ -79,8 +80,22 @@ services:
         avnav -t /home/avnav/avnav_server.xml
       "
 
+  nmea-test-rig:
+    build:
+      context: ./nmea-test-rig
+    container_name: nmea-test-rig
+    ports:
+      - "10110:10110"     # NMEA 0183 TCP stream
+      - "10111:10111/udp" # NMEA 0183 UDP broadcast
+      - "10180:10180"     # HTTP control API (avoids 8080 conflict with avnav)
+    environment:
+      - TRACK=2025-05-06  # Auto-load this track; leave empty to load via API
+      - SPEED=1.0
+      - EXCLUDE=AIVDM,AIVDO  # Filter out AIS traffic, navigation sentences only
+    restart: unless-stopped
+
 volumes:
   signalk-logs:
   influxdb-data:
   influxdb-config:
-  avnav-home: 
+  avnav-home:
