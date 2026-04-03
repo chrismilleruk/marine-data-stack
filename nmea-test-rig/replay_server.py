@@ -28,6 +28,8 @@ HTTP Control API:
     POST /filter?exclude=A,B  Exclude sentence types
     POST /filter?only=A,B     Include only these sentence types
     POST /filter?clear        Clear all filters
+    POST /loop?on             Enable looping (default)
+    POST /loop?off            Disable looping
 """
 
 import argparse
@@ -101,6 +103,7 @@ class PlaybackEngine:
         self.position = 0          # index into track.lines
         self.speed = 1.0
         self.playing = False
+        self.loop = True
         self.lock = threading.Lock()
 
         # Sentence filter
@@ -198,6 +201,7 @@ class PlaybackEngine:
                 "track": self.track.meta.get("date", ""),
                 "playing": self.playing,
                 "speed": self.speed,
+                "loop": self.loop,
                 "position": pos,
                 "total_lines": len(lines),
                 "pct": round(pct, 2),
@@ -220,6 +224,9 @@ class PlaybackEngine:
                 if not self.playing or not self.track:
                     return
                 if self.position >= len(self.track.lines):
+                    if self.loop:
+                        self.position = 0
+                        continue
                     self.playing = False
                     return
                 pos = self.position
@@ -235,6 +242,9 @@ class PlaybackEngine:
             with self.lock:
                 self.position = pos + 1
                 if self.position >= len(self.track.lines):
+                    if self.loop:
+                        self.position = 0
+                        continue
                     self.playing = False
                     return
                 next_ts = self.track.lines[self.position][0]
@@ -256,8 +266,9 @@ class PlaybackEngine:
 class TCPServer:
     """Simple TCP server that accepts multiple clients and broadcasts lines."""
 
-    def __init__(self, port):
+    def __init__(self, port, nodelay=False):
         self.port = port
+        self.nodelay = nodelay
         self.clients = []
         self.lock = threading.Lock()
         self.server_socket = None
@@ -273,6 +284,8 @@ class TCPServer:
         while True:
             try:
                 client, addr = self.server_socket.accept()
+                if self.nodelay:
+                    client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
                 with self.lock:
                     self.clients.append(client)
                 print(f"  TCP client connected: {addr}")
@@ -436,6 +449,14 @@ class ControlHandler(BaseHTTPRequestHandler):
             else:
                 self._error("Missing ?pct=N or ?utc=TIMESTAMP")
 
+        elif path == "/loop":
+            if "off" in params or "off" in parsed.query:
+                self.engine.loop = False
+                self._json_response({"ok": True, "loop": False})
+            else:
+                self.engine.loop = True
+                self._json_response({"ok": True, "loop": True})
+
         elif path == "/filter":
             if "clear" in params:
                 self.engine.clear_filter()
@@ -477,10 +498,14 @@ def main():
                         help="Initial speed multiplier")
     parser.add_argument("--autoplay", action="store_true",
                         help="Start playback immediately")
+    parser.add_argument("--no-loop", action="store_true",
+                        help="Disable looping (loop is on by default)")
     parser.add_argument("--exclude", default=None,
                         help="Comma-separated sentence types to exclude")
     parser.add_argument("--only", default=None,
                         help="Comma-separated sentence types to include")
+    parser.add_argument("--tcp-nodelay", action="store_true",
+                        help="Disable Nagle's algorithm (reduces latency for small clients)")
     args = parser.parse_args()
 
     # Resolve tracks dir
@@ -502,7 +527,7 @@ def main():
     print()
 
     # Set up network
-    tcp = TCPServer(args.tcp_port)
+    tcp = TCPServer(args.tcp_port, nodelay=args.tcp_nodelay)
     tcp.start()
 
     udp = UDPBroadcaster(args.udp_port, args.udp_dest)
@@ -510,6 +535,7 @@ def main():
     # Set up playback engine
     engine = PlaybackEngine()
     engine.speed = args.speed
+    engine.loop = not args.no_loop
 
     def on_sentence(raw_line, stype):
         tcp.send(raw_line)
@@ -555,6 +581,7 @@ def main():
     print(f"  POST /speed?x=N       — set speed (0.1–100)")
     print(f"  POST /seek?pct=N      — seek to percentage")
     print(f"  POST /seek?utc=TS     — seek to UTC timestamp")
+    print(f"  POST /loop?on|off     — toggle looping (default: on)")
     print(f"  POST /filter?...      — set sentence filter")
     print()
 

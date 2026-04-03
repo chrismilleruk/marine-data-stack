@@ -13,13 +13,16 @@ EXPOSE 10180/tcp
 ENV TRACK=""
 ENV SPEED="1.0"
 ENV EXCLUDE="AIVDM,AIVDO"
+ENV UDP_DEST="255.255.255.255"
+ENV TCP_NODELAY=""
 
 CMD python3 replay_server.py \
     --tracks-dir ./tracks \
     --tcp-port 10110 \
     --udp-port 10111 \
-    --udp-dest 255.255.255.255 \
+    --udp-dest ${UDP_DEST} \
     --http-port 10180 \
     --speed ${SPEED} \
     --exclude ${EXCLUDE} \
+    ${TCP_NODELAY:+--tcp-nodelay} \
     ${TRACK:+--track $TRACK --autoplay}
