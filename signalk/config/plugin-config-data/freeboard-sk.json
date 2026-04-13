@@ -1,0 +1,11 @@
+{
+  "configuration": {
+    "weather": {
+      "enable": false,
+      "apiVersion": 3,
+      "apiKey": "",
+      "pollInterval": 60
+    }
+  },
+  "enabled": true
+}

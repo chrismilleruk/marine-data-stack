@@ -1,78 +1,36 @@
-# Marine Data Stack for Balena Devices
-# This docker-compose stack runs on a Raspberry Pi 4 (or similar) managed by Balena
-# It collects marine/boat data locally and syncs to InfluxDB Cloud
+# Marine Data Stack 2026 — Raspberry Pi 4
+# Slim stack: no screen, no local DB, no local dashboards
 #
 # Services:
-# - SignalK: Marine data server collecting NMEA data
-# - InfluxDB: Local time-series database for data storage
-# - Grafana: Local visualization dashboard
-# - AVNav: Marine navigation software
-# - Telegraf: Receives data from SignalK and forwards to InfluxDB Cloud
-# - Browser: Kiosk browser for displaying dashboards
+# - SignalK: Marine data server (NMEA via MacArthur Hat)
+# - AVNav: Navigation software (accessible from tablet)
+# - Syncthing: Syncs NMEA logs + config to shore
+# - Telegraf: System stats → TimescaleDB
+# - Cloudflared: Remote access tunnel
 #
-# Environment variables are managed through Balena device/fleet variables
-# Data flow: NMEA devices -> SignalK -> Local InfluxDB (for local storage)
-#                                    -> Telegraf -> Cloud InfluxDB (for cloud sync)
+# Data flow: NMEA devices → SignalK → NMEA logs → Syncthing → shore
+#            Shore side: nmea_relay.py watches synced logs → TimescaleDB
+#
+# Power target: ~300mA at 12V (HDMI off, underclocked)
 
 version: '2'
 
 services:
   signalk:
-    image: signalk/signalk-server:latest
+    build:
+      context: ./signalk
     container_name: signalk
-    privileged: true # required for UDEV to find plugged in peripherals such as a USB mouse
+    privileged: true
     ports:
-      - "3000:3000"      # Web interface (external)
-      - "8375"      # NMEA 0183 TCP input
+      - "3000:3000"      # Web interface
+      - "8375"           # NMEA 0183 TCP input
       - "10110:10110"    # NMEA 0183 TCP output
       - "8443:8443"      # HTTPS
     volumes:
-      - signalk-config:/home/node/.signalk  # Settings persistence
-      - signalk-logs:/home/node/.signalk/logs  # Map logs directory to host
+      - signalk-config:/home/node/.signalk
+      - signalk-logs:/home/node/.signalk/logs
     environment:
       - NMEA0183PORT=10110
-      - SIGNALK_NODE_VERSION=latest
-    restart: unless-stopped
-    labels:
-      io.balena.features.supervisor-api: '1'
-
-  influxdb:
-    image: influxdb:2.7
-    container_name: influxdb
-    ports:
-      - "8086"      # InfluxDB UI and API (internal only)
-    volumes:
-      - influxdb-data:/var/lib/influxdb2
-      - influxdb-config:/etc/influxdb2
-    environment:
-      # - DOCKER_INFLUXDB_INIT_MODE=setup
-      # - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USERNAME:-admin}
-      # - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD:-Strong_p@ssword}
-      # - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG:-marine}
-      # - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET:-signalk}
-      # - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_ADMIN_TOKEN}
-      - INFLUXDB_HTTP_AUTH_ENABLED=true
-      - INFLUXDB_REPORTING_DISABLED=true
-    restart: unless-stopped
-    labels:
-      io.balena.features.supervisor-api: '1'
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "8000"      # Grafana UI (internal only)
-    volumes:
-      - grafana-data:/var/lib/grafana
-    environment:
-      # - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
-      # - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
-      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-worldmap-panel
-      # - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-/grafana/}
-      # - GF_SERVER_SERVE_FROM_SUB_PATH=true
-      - GF_SERVER_HTTP_PORT=8000
-    depends_on:
-      - influxdb
     restart: unless-stopped
     labels:
       io.balena.features.supervisor-api: '1'
@@ -82,18 +40,39 @@ services:
       context: ./avnav
     container_name: avnav
     ports:
-      - "8080:8080"      # AVNav web interface (external)
-      - "8081"      # NMEA over TCP (input) 
-      - "8082"      # NMEA over TCP (output)
+      - "8080:8080"      # AVNav web interface
+      - "8081"           # NMEA over TCP (input)
+      - "8082"           # NMEA over TCP (output)
     volumes:
-      - avnav-home:/home/avnav/avnav  # AVNav user settings
-      - avnav-charts:/home/avnav/charts  # For charts
+      - avnav-home:/home/avnav/avnav
+      - avnav-charts:/home/avnav/charts
     environment:
       - TZ=UTC
     restart: unless-stopped
-    privileged: true     # This can help with permission issues in Balena
+    privileged: true
     depends_on:
       - signalk
+    labels:
+      io.balena.features.supervisor-api: '1'
+
+  syncthing:
+    image: lscr.io/linuxserver/syncthing:latest
+    container_name: syncthing
+    hostname: marine-syncthing
+    environment:
+      - TZ=UTC
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - syncthing-config:/config
+      - signalk-config:/sync/signalk-config
+      - signalk-logs:/sync/signalk-logs
+    ports:
+      - "8384:8384"      # Web UI
+      - "22000:22000/tcp"
+      - "22000:22000/udp"
+      - "21027:21027/udp"
+    restart: unless-stopped
     labels:
       io.balena.features.supervisor-api: '1'
 
@@ -102,82 +81,24 @@ services:
       context: ./telegraf
       dockerfile: Dockerfile
     container_name: telegraf
-    ports:
-      - "8186"      # InfluxDB listener for SignalK data (internal only)
-    # environment:
-      # # Local InfluxDB settings
-      # - LOCAL_INFLUX_TOKEN=${LOCAL_INFLUX_TOKEN}
-      # - LOCAL_INFLUX_ORG=${LOCAL_INFLUX_ORG:-marine}
-      # - LOCAL_INFLUX_BUCKET=${LOCAL_INFLUX_BUCKET:-signalk}
-      # # Cloud InfluxDB settings
-      # - CLOUD_INFLUX_URL=${CLOUD_INFLUX_URL}
-      # - CLOUD_INFLUX_TOKEN=${CLOUD_INFLUX_TOKEN}
-      # - CLOUD_INFLUX_ORG=${CLOUD_INFLUX_ORG}
-      # - CLOUD_INFLUX_BUCKET=${CLOUD_INFLUX_BUCKET}
-      # # Device name from Balena
-      # - BALENA_DEVICE_NAME_AT_INIT=${BALENA_DEVICE_NAME_AT_INIT:-marine-device}
-    depends_on:
-      - influxdb
+    privileged: true  # needed for system stats (CPU temp, disk)
     restart: unless-stopped
     labels:
       io.balena.features.supervisor-api: '1'
 
-  browser:
-    build:
-      context: ./browser
-    # image: bh.cr/g_lucas_houssa/browser
-    # image: bh.cr/balenalabs/browser-aarch64 # where <arch> is one of aarch64, arm32 or amd64
-    privileged: true # required for UDEV to find plugged in peripherals such as a USB mouse
-    ports:
-        - '5011' # management API (optional)
-        - '35173' # Chromium debugging port (optional)
-    volumes:
-      - 'browser-settings:/data' # Only required if using PERSISTENT flag (see below)
-    devices:
-      - /dev/bus/usb:/dev/bus/usb  # USB devices access
-      - /dev/input:/dev/input      # Input devices access
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command: tunnel run
     environment:
-      - UDEV=on  # Enable udev for device detection
-      - DISPLAY_NUM=0  # Display number
-    labels:
-      io.balena.features.kernel-modules: '1'  # Access to kernel modules
-      io.balena.features.firmware: '1'        # Access to firmware
-
-  syncthing:
-    image: lscr.io/linuxserver/syncthing:latest
-    container_name: syncthing
-    hostname: marine-syncthing
-    environment:
-      - TZ=UTC
-    volumes:
-      # Syncthing configuration
-      - syncthing-config:/config
-      # Access to all other service volumes for synchronization
-      - signalk-config:/sync/signalk-config
-      - signalk-logs:/sync/signalk-logs
-      - influxdb-data:/sync/influxdb-data
-      - influxdb-config:/sync/influxdb-config
-      - grafana-data:/sync/grafana-data
-      - avnav-home:/sync/avnav-home
-      - avnav-charts:/sync/avnav-charts
-      - browser-settings:/sync/browser-settings
-    ports:
-      - "8384:8384"  # Web UI
-      - "22000:22000/tcp"  # Sync protocol
-      - "22000:22000/udp"  # Sync protocol
-      - "21027:21027/udp"  # Discovery
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
     restart: unless-stopped
     labels:
       io.balena.features.supervisor-api: '1'
-    user: "0:0"
 
 volumes:
   signalk-config:
   signalk-logs:
-  influxdb-data:
-  influxdb-config:
-  grafana-data:
   avnav-home:
   avnav-charts:
-  browser-settings:
   syncthing-config:

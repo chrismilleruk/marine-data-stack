@@ -1,0 +1,7 @@
+{
+  "configuration": {
+    "maxCount": 1000,
+    "viewType": "diagram"
+  },
+  "enabled": true
+}

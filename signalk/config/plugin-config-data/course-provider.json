@@ -1,0 +1,9 @@
+{
+  "configuration": {
+    "notifications": {},
+    "calculations": {
+      "method": "Rhumbline"
+    }
+  },
+  "enabled": false
+}
