@@ -24,9 +24,10 @@ from datetime import datetime, timezone, timedelta
 import requests
 from PIL import Image, ImageDraw, ImageFont
 
-sys.path.insert(0, os.environ.get(
-    "EPAPER_LIB_PATH",
-    os.path.expanduser("~/e-Paper/RaspberryPi_JetsonNano/python/lib")))
+# Waveshare lib: vendored in waveshare_epd/ (container) or ~/e-Paper (host)
+if not os.path.exists(os.path.join(os.path.dirname(__file__), "waveshare_epd")):
+    sys.path.insert(0, os.path.expanduser(
+        "~/e-Paper/RaspberryPi_JetsonNano/python/lib"))
 
 from logging.handlers import RotatingFileHandler
 
