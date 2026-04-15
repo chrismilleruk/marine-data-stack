@@ -96,6 +96,17 @@ services:
     labels:
       io.balena.features.supervisor-api: '1'
 
+  tides-display:
+    build:
+      context: ./tides-display
+    container_name: tides-display
+    privileged: true
+    restart: unless-stopped
+    labels:
+      io.balena.features.sysfs: '1'
+      io.balena.features.kernel-modules: '1'
+      io.balena.features.supervisor-api: '1'
+
 volumes:
   signalk-config:
   signalk-logs:
