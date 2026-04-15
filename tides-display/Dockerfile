@@ -1,6 +1,8 @@
 FROM balenalib/raspberrypi4-64-python:3.11-bookworm-run
 
 RUN install_packages \
+    gcc \
+    libc6-dev \
     libopenjp2-7 \
     libtiff6 \
     fonts-dejavu-core
