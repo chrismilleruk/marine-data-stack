@@ -5,10 +5,10 @@ Left panel:  Dublin Port tidal heights with curve and phase
 Middle panel: Dublin Bay wind — 8h obs vs forecast overlay
 Right panel:  Sea conditions — temp, waves, pressure
 
-Data sources:
-- Marine Institute Ireland ERDDAP (tides, predictions)
-- Irish Lights CIL MetOcean API (Dublin Bay buoy obs)
-- GFS via ERDDAP (wind forecast)
+Data sources (via Racemarks API):
+- getTides: Marine Institute ERDDAP (realtime, predictions, highlow)
+- getMarineObs: Irish Lights CIL MetOcean API (Dublin Bay buoy)
+- weatherForecast: Open-Meteo (wind, gusts, pressure in knots)
 
 Updates on new data (polls every 60s).
 """
@@ -50,12 +50,8 @@ WIDTH, HEIGHT = 800, 480
 POLL_INTERVAL = 60
 MIN_REFRESH_GAP = 120
 
-ERDDAP = "https://erddap.marine.ie/erddap/tabledap"
-
-# Irish Lights Dublin Bay buoy
-CIL_TOKEN = "B9EF21E2-C563-4C07-94E9-198AF132C447"
-CIL_MMSI = "992501301"
-CIL_BASE = "https://cilpublic.cil.ie/MetOcean/MetOcean.ashx"
+# Racemarks API base URL (Firebase Cloud Functions)
+RACEMARKS_API = "https://us-central1-racemarksapp-dev.cloudfunctions.net"
 
 
 # --- Time helpers ---
@@ -81,126 +77,117 @@ def local_str(dt_obj):
     return to_local(dt_obj).strftime("%H:%M")
 
 
-# --- API: Tides ---
+# --- API: Tides (via Racemarks API) ---
+
+# Dublin Port: LAT datum is 2.458m below OD Malin
+_LAT_OFFSET = 2.458
 
 def fetch_tide_obs(hours=8):
-    """Dublin Port recent observations."""
-    since = (datetime.now(timezone.utc) - timedelta(hours=hours)).strftime(
-        "%Y-%m-%dT%H:%M:%SZ")
-    url = (f"{ERDDAP}/IrishNationalTideGaugeNetwork.json"
-           f"?time,station_id,Water_Level_LAT,Water_Level_OD_Malin"
-           f"&station_id=%22Dublin+Port%22&time%3E={since}"
-           f"&orderBy(%22time%22)")
+    """Dublin Port recent observations via Racemarks getTides."""
+    url = f"{RACEMARKS_API}/getTides?type=realtime&station=Dublin+Port"
     r = requests.get(url, timeout=30)
     r.raise_for_status()
-    data = r.json()["table"]
-    cols = data["columnNames"]
-    return [dict(zip(cols, row)) for row in data["rows"]]
+    readings = r.json().get("readings", [])
+    # Map from API format to expected format
+    return [{
+        "time": rd["time"],
+        "station_id": rd.get("station", "Dublin Port"),
+        "Water_Level_LAT": rd.get("waterLevel"),
+        "Water_Level_OD_Malin": (rd["waterLevel"] - _LAT_OFFSET
+                                 if rd.get("waterLevel") is not None else None),
+    } for rd in readings]
 
 
 def fetch_tide_pred_curve(hours_back=8, hours_fwd=8):
-    """Continuous tide prediction for curve."""
-    now = datetime.now(timezone.utc)
-    start = (now - timedelta(hours=hours_back)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    end = (now + timedelta(hours=hours_fwd)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    url = (f"{ERDDAP}/imiTidePrediction.json"
-           f"?time,stationID,Water_Level"
-           f"&stationID=%22Dublin_Port%22"
-           f"&time%3E={start}&time%3C={end}"
-           f"&orderBy(%22time%22)")
+    """Continuous tide prediction for curve via Racemarks getTides."""
+    url = f"{RACEMARKS_API}/getTides?type=predictions&station=Dublin_Port"
     try:
         r = requests.get(url, timeout=30)
         r.raise_for_status()
-        data = r.json()["table"]
-        cols = data["columnNames"]
-        return [dict(zip(cols, row)) for row in data["rows"]]
+        readings = r.json().get("readings", [])
+        return [{
+            "time": rd["time"],
+            "stationID": rd.get("station", "Dublin_Port"),
+            "Water_Level": rd.get("waterLevel"),
+        } for rd in readings]
     except Exception as e:
         log.warning("Tide pred curve: %s", e)
         return []
 
 
 def fetch_tide_highlow(hours_back=12, hours_fwd=12):
-    """High/low events in window."""
-    now = datetime.now(timezone.utc)
-    start = (now - timedelta(hours=hours_back)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    end = (now + timedelta(hours=hours_fwd)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    url = (f"{ERDDAP}/IMI_TidePrediction_HighLow.json"
-           f"?time,stationID,Water_Level_ODMalin,tide_time_category"
-           f"&stationID=%22Dublin_Port%22"
-           f"&time%3E={start}&time%3C={end}"
-           f"&orderBy(%22time%22)")
+    """High/low events via Racemarks getTides."""
+    url = f"{RACEMARKS_API}/getTides?type=highlow&station=Dublin_Port"
     try:
         r = requests.get(url, timeout=30)
         r.raise_for_status()
-        data = r.json()["table"]
-        cols = data["columnNames"]
-        return [dict(zip(cols, row)) for row in data["rows"]]
+        readings = r.json().get("readings", [])
+        return [{
+            "time": rd["time"],
+            "stationID": rd.get("station", "Dublin_Port"),
+            "Water_Level_ODMalin": rd.get("waterLevelODMalin"),
+            "tide_time_category": rd.get("tideCategory"),
+        } for rd in readings]
     except Exception as e:
         log.warning("Tide H/L: %s", e)
         return []
 
 
-# --- API: Dublin Bay buoy (Irish Lights) ---
+# --- API: Dublin Bay buoy (via Racemarks getMarineObs) ---
 
 def fetch_dublin_bay_obs(hours=8):
-    """Hourly observations from Irish Lights Dublin buoy."""
-    from_date = (datetime.now(timezone.utc) - timedelta(hours=hours)).strftime(
-        "%d/%m/%Y %H:%M:%S")
-    url = (f"{CIL_BASE}?accesstoken={CIL_TOKEN}"
-           f"&MMSI={CIL_MMSI}&FromDate={from_date}")
+    """Hourly observations from Dublin Bay buoy via Racemarks."""
+    url = f"{RACEMARKS_API}/getMarineObs?hours={hours}"
     try:
         r = requests.get(url, timeout=15)
         r.raise_for_status()
-        raw = r.json()
-        data = raw.get("MetOceanData", [])
-        if not data:
-            log.warning("Dublin Bay obs: API returned OK but MetOceanData empty. "
-                        "Keys: %s", list(raw.keys()))
-        # Sort chronologically (API returns newest first)
-        data.sort(key=lambda x: x.get("hour", ""))
-        return data
+        data = r.json()
+        obs = data.get("observations", [])
+        if not obs:
+            log.warning("Dublin Bay obs: API returned OK but observations empty")
+        # Map from API format to expected format
+        return [{
+            "hour": o["time"],
+            "WaterTemperature": o.get("waterTemp"),
+            "WaveHeight": o.get("waveHeight"),
+            "WavePeriod": o.get("wavePeriod"),
+            "AverageWindSpeed": o.get("windSpeed"),
+            "GustSpeed": o.get("windGust"),
+            "WindDirection": o.get("windDirection"),
+            "WindGustDirection": o.get("windGustDirection"),
+        } for o in obs]
     except Exception as e:
-        log.warning("Dublin Bay obs: %s (url=%s)", e, url[:120])
+        log.warning("Dublin Bay obs: %s", e)
         return []
 
 
-# --- API: Wind forecast (DMI HARMONIE-AROME via Open-Meteo) ---
-
-# Dublin Bay SWM buoy coordinates
-FORECAST_LAT = 53.332
-FORECAST_LON = -6.078
+# --- API: Wind forecast (via Racemarks weatherForecast) ---
 
 def fetch_wind_forecast(hours_back=8, hours_fwd=8):
-    """DMI HARMONIE-AROME wind forecast for Dublin Bay via Open-Meteo."""
-    params = {
-        "latitude": FORECAST_LAT,
-        "longitude": FORECAST_LON,
-        "hourly": "wind_speed_10m,wind_direction_10m,wind_gusts_10m,"
-                  "pressure_msl",
-        "models": "dmi_harmonie_arome_europe",
-        "wind_speed_unit": "kn",
-        "timezone": "UTC",
-        "past_hours": hours_back,
-        "forecast_hours": hours_fwd,
-    }
+    """Wind forecast for Dublin Bay via Racemarks weatherForecast."""
+    url = f"{RACEMARKS_API}/weatherForecast?location=dublin_bay"
     try:
-        r = requests.get("https://api.open-meteo.com/v1/forecast",
-                         params=params, timeout=30)
+        r = requests.get(url, timeout=30)
         r.raise_for_status()
-        hourly = r.json()["hourly"]
-        times = hourly["time"]
+        data = r.json()
+        forecasts = data.get("forecasts", [])
         result = []
-        for i, t in enumerate(times):
+        for f in forecasts:
+            t = f.get("from", "")
+            if not t.endswith("Z") and not t.endswith("+00:00"):
+                t = t + ":00Z" if len(t) == 16 else t + "Z" if len(t) == 19 else t
+            wind = f.get("wind", {})
             result.append({
-                "time": t + ":00Z" if not t.endswith("Z") else t,
-                "WindSpeed": hourly.get("wind_speed_10m", [None])[i],
-                "WindDirection": hourly.get("wind_direction_10m", [None])[i],
-                "WindGust": hourly.get("wind_gusts_10m", [None])[i],
-                "AtmosphericPressure": hourly.get("pressure_msl", [None])[i],
+                "time": t,
+                "WindSpeed": wind.get("speed"),
+                "WindDirection": wind.get("direction"),
+                "WindGust": wind.get("gust"),
+                "AtmosphericPressure": (f.get("pressure", {}).get("value")
+                                        if f.get("pressure") else None),
             })
         return result
     except Exception as e:
-        log.warning("DMI HARMONIE forecast: %s", e)
+        log.warning("Weather forecast: %s", e)
         return []
 
 
