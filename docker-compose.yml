@@ -101,6 +101,8 @@ services:
       context: ./tides-display
     container_name: tides-display
     privileged: true
+    ports:
+      - "8090:8090"      # Preview image (PNG)
     restart: unless-stopped
     labels:
       io.balena.features.sysfs: '1'

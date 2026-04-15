@@ -1127,6 +1127,51 @@ def cleanup_epd(epd):
         pass
 
 
+# --- HTTP preview server ---
+
+import threading
+import io
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+_last_image = None
+_last_image_lock = threading.Lock()
+
+
+class _ImageHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        with _last_image_lock:
+            img = _last_image
+        if img is None:
+            self.send_response(503)
+            self.end_headers()
+            self.wfile.write(b"No image rendered yet")
+            return
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        data = buf.getvalue()
+        self.send_response(200)
+        self.send_header("Content-Type", "image/png")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def log_message(self, format, *args):
+        pass
+
+
+def _start_http_server(port=8090):
+    server = HTTPServer(("0.0.0.0", port), _ImageHandler)
+    t = threading.Thread(target=server.serve_forever, daemon=True)
+    t.start()
+    log.info("HTTP preview server on port %d", port)
+
+
+def _update_preview(img):
+    global _last_image
+    with _last_image_lock:
+        _last_image = img.copy()
+
+
 # --- Main loop ---
 
 _running = True
@@ -1144,6 +1189,8 @@ def main():
     signal.signal(signal.SIGTERM, _signal_handler)
 
     preview_mode = "--preview" in sys.argv
+
+    _start_http_server()
 
     epd = None
     if not preview_mode:
@@ -1177,6 +1224,7 @@ def main():
 
             if preview_mode and data:
                 img = render_display(data)
+                _update_preview(img)
                 img.save("tides_preview.png")
                 log.info("Preview saved")
                 break
@@ -1185,6 +1233,7 @@ def main():
             if data and has_new and (now_ts - last_refresh) >= MIN_REFRESH_GAP:
                 log.info("Refreshing display...")
                 img = render_display(data)
+                _update_preview(img)
                 display_image(epd, img)
                 last_obs_key = obs_key
                 last_refresh = time.time()
