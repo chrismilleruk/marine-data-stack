@@ -14,6 +14,34 @@ if [ ! -f "$SIGNALK_HOME/settings.json" ] || ! grep -q "ttyAMA" "$SIGNALK_HOME/s
     chown node:node "$SIGNALK_HOME/settings.json"
 fi
 
+# Seed security.json if missing — required for token security strategy
+# Set ADMINUSER=username:password via Balena env vars (default: admin:admin)
+if [ ! -f "$SIGNALK_HOME/security.json" ]; then
+    ADMIN_USER="${ADMINUSER%%:*}"
+    ADMIN_PASS="${ADMINUSER#*:}"
+    ADMIN_USER="${ADMIN_USER:-admin}"
+    ADMIN_PASS="${ADMIN_PASS:-admin}"
+    echo "Seeding security.json (admin user: $ADMIN_USER)"
+    HASH=$(node -e "require('/home/node/signalk/node_modules/bcryptjs').hash('$ADMIN_PASS', 10, (e,h) => console.log(h))")
+    cat > "$SIGNALK_HOME/security.json" <<EOSEC
+{
+  "users": [
+    {
+      "userId": "$ADMIN_USER",
+      "type": "admin",
+      "password": "$HASH"
+    }
+  ],
+  "devices": [],
+  "immutableConfig": false,
+  "allowNewUserRegistration": false,
+  "allowDeviceAccessRequests": true,
+  "acls": []
+}
+EOSEC
+    chown node:node "$SIGNALK_HOME/security.json"
+fi
+
 # Seed package.json if missing plugins
 if ! grep -q "signalk-auto-polar" "$SIGNALK_HOME/package.json" 2>/dev/null; then
     echo "Seeding package.json"
