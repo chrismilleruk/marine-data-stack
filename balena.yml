@@ -1,6 +1,6 @@
 name: marine-data-stack
 type: sw.application
-version: 0.2.0
+version: 0.2.1
 description: >-
   Slim marine data collection stack for Raspberry Pi 4.
   Collects NMEA data via SignalK, syncs logs to shore via Syncthing,

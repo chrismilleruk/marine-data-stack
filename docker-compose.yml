@@ -59,10 +59,14 @@ services:
     image: lscr.io/linuxserver/syncthing:latest
     container_name: syncthing
     hostname: marine-syncthing
+    # Run as root so syncthing can read/write the shared signalk-config and
+    # signalk-logs volumes (owned by the signalk container's node/root user)
+    # and avoid permission errors writing /config/cert.pem on first boot.
+    user: "0:0"
     environment:
       - TZ=UTC
-      - PUID=1000
-      - PGID=1000
+      - PUID=0
+      - PGID=0
     volumes:
       - syncthing-config:/config
       - signalk-config:/sync/signalk-config
