@@ -3,10 +3,14 @@
 #
 # Services:
 # - SignalK: Marine data server (NMEA via MacArthur Hat)
-# - AVNav: Navigation software (accessible from tablet)
 # - Syncthing: Syncs NMEA logs + config to shore
 # - Telegraf: System stats → TimescaleDB
 # - Cloudflared: Remote access tunnel
+#
+# Navigation: Race Marks (in SignalK) is the sole Course API authority.
+# Cruising nav will be added later as a Course API client (Freeboard-SK).
+# AvNav was removed because it owned its own leg state and fought the
+# Course API; see commit history for context.
 #
 # Data flow: NMEA devices → SignalK → NMEA logs → Syncthing → shore
 #            Shore side: nmea_relay.py watches synced logs → TimescaleDB
@@ -32,26 +36,6 @@ services:
     environment:
       - NMEA0183PORT=10110
     restart: unless-stopped
-    labels:
-      io.balena.features.supervisor-api: '1'
-
-  avnav:
-    build:
-      context: ./avnav
-    container_name: avnav
-    ports:
-      - "8080:8080"      # AVNav web interface
-      - "8081"           # NMEA over TCP (input)
-      - "8082"           # NMEA over TCP (output)
-    volumes:
-      - avnav-home:/home/avnav/avnav
-      - avnav-charts:/home/avnav/charts
-    environment:
-      - TZ=UTC
-    restart: unless-stopped
-    privileged: true
-    depends_on:
-      - signalk
     labels:
       io.balena.features.supervisor-api: '1'
 
@@ -99,6 +83,4 @@ services:
 volumes:
   signalk-config:
   signalk-logs:
-  avnav-home:
-  avnav-charts:
   syncthing-config:
