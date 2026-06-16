@@ -1,0 +1,140 @@
+{
+  "confident_race_days": [
+    {
+      "date": "2025-05-06",
+      "day": "Tue",
+      "start_area": "WP",
+      "start_time": "19:00"
+    },
+    {
+      "date": "2025-05-22",
+      "day": "Thu",
+      "start_area": "Cor",
+      "start_time": "18:55"
+    },
+    {
+      "date": "2025-06-28",
+      "day": "Sat",
+      "start_area": "Cor",
+      "start_time": "14:10"
+    },
+    {
+      "date": "2025-07-05",
+      "day": "Sat",
+      "start_area": "Cor",
+      "start_time": "14:10"
+    },
+    {
+      "date": "2025-07-17",
+      "day": "Thu",
+      "start_area": "Cor",
+      "start_time": "18:55"
+    },
+    {
+      "date": "2025-07-19",
+      "day": "Sat",
+      "start_area": "Hut",
+      "start_time": "14:10"
+    },
+    {
+      "date": "2025-07-22",
+      "day": "Tue",
+      "start_area": "WP",
+      "start_time": "19:00"
+    },
+    {
+      "date": "2025-07-24",
+      "day": "Thu",
+      "start_area": "Cor",
+      "start_time": "18:55"
+    },
+    {
+      "date": "2025-07-26",
+      "day": "Sat",
+      "start_area": "Hut",
+      "start_time": "14:10"
+    },
+    {
+      "date": "2025-07-29",
+      "day": "Tue",
+      "start_area": "WP",
+      "start_time": "19:00"
+    },
+    {
+      "date": "2025-07-31",
+      "day": "Thu",
+      "start_area": "Cor",
+      "start_time": "18:55"
+    },
+    {
+      "date": "2025-08-02",
+      "day": "Sat",
+      "start_area": "Hut",
+      "start_time": "14:10"
+    },
+    {
+      "date": "2025-08-05",
+      "day": "Tue",
+      "start_area": "WP",
+      "start_time": "19:00"
+    },
+    {
+      "date": "2025-08-07",
+      "day": "Thu",
+      "start_area": "Cor",
+      "start_time": "18:55"
+    },
+    {
+      "date": "2025-08-09",
+      "day": "Sat",
+      "start_area": "Hut",
+      "start_time": "14:10"
+    },
+    {
+      "date": "2025-08-12",
+      "day": "Tue",
+      "start_area": "WP",
+      "start_time": "19:00"
+    },
+    {
+      "date": "2025-08-14",
+      "day": "Thu",
+      "start_area": "Cor",
+      "start_time": "18:55"
+    },
+    {
+      "date": "2025-08-19",
+      "day": "Tue",
+      "start_area": "WP",
+      "start_time": "19:00"
+    },
+    {
+      "date": "2025-09-13",
+      "day": "Sat",
+      "start_area": "Hut",
+      "start_time": "14:10"
+    }
+  ],
+  "questionable_days": [
+    {
+      "date": "2025-05-31",
+      "day": "Sat",
+      "start_area": "Hut",
+      "start_time": "14:10"
+    },
+    {
+      "date": "2025-06-03",
+      "day": "Tue",
+      "start_area": "WP",
+      "start_time": "19:00"
+    },
+    {
+      "date": "2025-07-03",
+      "day": "Thu",
+      "start_area": "Cor",
+      "start_time": "18:55"
+    }
+  ],
+  "missed_at_home": [],
+  "non_race_sailing": []
+}

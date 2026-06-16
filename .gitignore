@@ -2,3 +2,7 @@
 volumes/
 .DS_Store
 analysis/sailingpolar-env
+analysis/logs-2025/
+analysis/__pycache__/
+backup/
+*.zip

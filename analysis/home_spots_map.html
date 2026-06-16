@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Blacksheep — Dublin Bay 2025</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  body { margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+  #map { width: 100%; height: 100vh; }
+  .label-icon { background: none; border: none; }
+  .spot-label {
+    font: 600 13px system-ui, sans-serif;
+    color: #1a1a2e;
+    background: rgba(255,255,255,0.92);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1.5px solid #4361ee;
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  }
+  .mark-label {
+    font: 500 11px system-ui, sans-serif;
+    color: #555;
+    background: rgba(255,255,255,0.85);
+    padding: 2px 5px;
+    border-radius: 4px;
+    border: 1px solid #aaa;
+    white-space: nowrap;
+  }
+  .wind-rose-container {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: rgba(255,255,255,0.94);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    padding: 12px 12px 8px 12px;
+  }
+  .wind-rose-title {
+    font: 700 13px system-ui, sans-serif;
+    color: #1a1a2e;
+    text-align: center;
+    margin-bottom: 2px;
+  }
+  .wind-rose-subtitle {
+    font: 400 10px system-ui, sans-serif;
+    color: #777;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .wind-rose-legend {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font: 400 9px system-ui, sans-serif;
+    color: #555;
+  }
+  .legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div class="wind-rose-container" id="windRose">
+  <div class="wind-rose-title">True Wind Direction</div>
+  <div class="wind-rose-subtitle">26.9 hrs racing — 2025 season</div>
+  <canvas id="roseCanvas" width="260" height="260"></canvas>
+  <div class="wind-rose-legend" id="roseLegend"></div>
+</div>
+
+<script>
+// === Map setup ===
+const map = L.map('map').setView([53.305, -6.135], 14);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors',
+  maxZoom: 19
+}).addTo(map);
+
+// === Home spots (only real ones) ===
+const homeSpots = [
+  { lat: 53.29988, lon: -6.12587, name: "Mooring", nights: 27,
+    desc: "N53°17.99' W6°07.55'" },
+  { lat: 53.29402, lon: -6.12996, name: "NYC", nights: 8,
+    desc: "N53°17.64' W6°07.80' — National Yacht Club" },
+];
+
+const homeColors = ['#e63946', '#2a9d8f'];
+
+homeSpots.forEach((spot, i) => {
+  L.circleMarker([spot.lat, spot.lon], {
+    radius: 10 + spot.nights * 0.5,
+    color: homeColors[i], fillColor: homeColors[i],
+    fillOpacity: 0.7, weight: 2
+  }).addTo(map).bindPopup(`<b>${spot.name}</b><br>${spot.nights} nights<br>${spot.desc}`);
+
+  L.circle([spot.lat, spot.lon], {
+    radius: 200, color: homeColors[i], fillColor: homeColors[i],
+    fillOpacity: 0.08, weight: 1, dashArray: '5,5'
+  }).addTo(map);
+
+  const label = L.divIcon({
+    className: 'label-icon',
+    html: `<div class="spot-label" style="border-color:${homeColors[i]}">${spot.name}</div>`,
+    iconAnchor: [-15, 12]
+  });
+  L.marker([spot.lat, spot.lon], { icon: label }).addTo(map);
+});
+
+// === Racing marks ===
+const marks = [
+  { lat: 53.30633, lon: -6.13200, code: "O", name: "West Pier" },
+  { lat: 53.30167, lon: -6.11400, code: "V", name: "Pier" },
+  { lat: 53.31233, lon: -6.12950, code: "H", name: "Harbour" },
+  { lat: 53.30717, lon: -6.13900, code: "X", name: "Turning" },
+  { lat: 53.30600, lon: -6.15000, code: "A", name: "Salthill" },
+  { lat: 53.31417, lon: -6.12283, code: "K", name: "Boyd" },
+  { lat: 53.31717, lon: -6.12700, code: "L", name: "Merrion" },
+  { lat: 53.32300, lon: -6.13067, code: "M", name: "Middle" },
+  { lat: 53.31467, lon: -6.15033, code: "C", name: "S'Point" },
+  { lat: 53.31417, lon: -6.14117, code: "B", name: "Saoirse" },
+];
+
+marks.forEach(m => {
+  L.circleMarker([m.lat, m.lon], {
+    radius: 5, color: '#888', fillColor: '#fff',
+    fillOpacity: 0.9, weight: 1.5
+  }).addTo(map).bindPopup(`<b>Mark ${m.code}: ${m.name}</b>`);
+  const label = L.divIcon({
+    className: 'label-icon',
+    html: `<div class="mark-label">${m.code}</div>`,
+    iconAnchor: [-8, 8]
+  });
+  L.marker([m.lat, m.lon], { icon: label }).addTo(map);
+});
+
+map.fitBounds([
+  [53.290, -6.155],
+  [53.325, -6.110]
+], { padding: [40, 40] });
+
+// === Wind Rose ===
+const windData = {
+  sectors: [
+    { dir:   0.0, bins: [0.15, 0.37, 0.10, 0.03, 0.00] },
+    { dir:  22.5, bins: [0.14, 0.48, 1.02, 0.02, 0.00] },
+    { dir:  45.0, bins: [0.11, 1.19, 3.13, 0.13, 0.00] },
+    { dir:  67.5, bins: [0.16, 0.65, 0.11, 0.01, 0.01] },
+    { dir:  90.0, bins: [0.63, 0.75, 0.04, 0.01, 0.01] },
+    { dir: 112.5, bins: [2.69, 3.09, 0.22, 0.03, 0.01] },
+    { dir: 135.0, bins: [3.95, 3.59, 2.83, 1.91, 0.02] },
+    { dir: 157.5, bins: [2.45, 3.93, 7.36, 2.10, 0.02] },
+    { dir: 180.0, bins: [0.70, 1.07, 1.71, 1.54, 0.03] },
+    { dir: 202.5, bins: [0.37, 1.98, 0.43, 0.27, 0.00] },
+    { dir: 225.0, bins: [0.38, 3.26, 0.59, 0.19, 0.09] },
+    { dir: 247.5, bins: [0.25, 1.91, 1.23, 1.99, 0.81] },
+    { dir: 270.0, bins: [0.77, 3.64, 3.10, 2.96, 0.49] },
+    { dir: 292.5, bins: [0.71, 5.94, 6.71, 5.41, 0.94] },
+    { dir: 315.0, bins: [0.32, 1.94, 2.49, 1.21, 0.15] },
+    { dir: 337.5, bins: [0.38, 0.31, 0.28, 0.01, 0.00] },
+  ],
+  binLabels: ['0–5 kt', '5–10 kt', '10–15 kt', '15–20 kt', '20+ kt']
+};
+
+const binColors = ['#a8dadc', '#457b9d', '#1d3557', '#e63946', '#6a040f'];
+
+function drawWindRose() {
+  const canvas = document.getElementById('roseCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const maxR = Math.min(cx, cy) - 24;
+
+  // Find max total for scaling
+  const maxTotal = Math.max(...windData.sectors.map(s => s.bins.reduce((a, b) => a + b, 0)));
+  const scale = maxR / maxTotal;
+
+  const nSectors = windData.sectors.length;
+  const sectorAngle = (2 * Math.PI) / nSectors;
+  const halfSector = sectorAngle / 2;
+  const barHalfAngle = halfSector * 0.82; // slight gap between sectors
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Concentric reference circles
+  const ringPcts = [5, 10, 15, 20];
+  ctx.strokeStyle = '#ddd';
+  ctx.lineWidth = 0.5;
+  ctx.font = '9px system-ui, sans-serif';
+  ctx.fillStyle = '#bbb';
+  ctx.textAlign = 'center';
+  for (const pct of ringPcts) {
+    const r = pct * scale;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.fillText(pct + '%', cx, cy - r + 10);
+  }
+
+  // Cross-hairs
+  ctx.strokeStyle = '#e0e0e0';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - maxR - 8); ctx.lineTo(cx, cy + maxR + 8);
+  ctx.moveTo(cx - maxR - 8, cy); ctx.lineTo(cx + maxR + 8, cy);
+  ctx.stroke();
+
+  // Cardinal labels
+  ctx.font = '700 12px system-ui, sans-serif';
+  ctx.fillStyle = '#444';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('N', cx, cy - maxR - 14);
+  ctx.fillText('S', cx, cy + maxR + 14);
+  ctx.fillText('E', cx + maxR + 14, cy);
+  ctx.fillText('W', cx - maxR - 14, cy);
+
+  // Draw stacked bars for each sector
+  for (let si = 0; si < nSectors; si++) {
+    const sector = windData.sectors[si];
+    // Convert direction to canvas angle: 0° = North = -π/2
+    const dirRad = (sector.dir * Math.PI / 180) - Math.PI / 2;
+
+    let innerR = 0;
+    for (let bi = 0; bi < sector.bins.length; bi++) {
+      const pct = sector.bins[bi];
+      if (pct <= 0) { innerR += pct * scale; continue; }
+      const outerR = innerR + pct * scale;
+
+      ctx.beginPath();
+      ctx.moveTo(
+        cx + innerR * Math.cos(dirRad - barHalfAngle),
+        cy + innerR * Math.sin(dirRad - barHalfAngle)
+      );
+      ctx.arc(cx, cy, outerR, dirRad - barHalfAngle, dirRad + barHalfAngle);
+      ctx.lineTo(
+        cx + innerR * Math.cos(dirRad + barHalfAngle),
+        cy + innerR * Math.sin(dirRad + barHalfAngle)
+      );
+      ctx.arc(cx, cy, innerR, dirRad + barHalfAngle, dirRad - barHalfAngle, true);
+      ctx.closePath();
+
+      ctx.fillStyle = binColors[bi];
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+
+      innerR = outerR;
+    }
+  }
+
+  // Center dot
+  ctx.beginPath();
+  ctx.arc(cx, cy, 2.5, 0, 2 * Math.PI);
+  ctx.fillStyle = '#333';
+  ctx.fill();
+}
+
+// Build legend
+function buildLegend() {
+  const el = document.getElementById('roseLegend');
+  windData.binLabels.forEach((label, i) => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<div class="legend-swatch" style="background:${binColors[i]}"></div>${label}`;
+    el.appendChild(item);
+  });
+}
+
+drawWindRose();
+buildLegend();
+
+// Prevent map interaction when hovering over the wind rose panel
+const roseEl = document.getElementById('windRose');
+L.DomEvent.disableClickPropagation(roseEl);
+L.DomEvent.disableScrollPropagation(roseEl);
+</script>
+</body>
+</html>

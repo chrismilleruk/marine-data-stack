@@ -1,0 +1,1432 @@
+{
+  "percentile": 96,
+  "min_minutes": 1.0,
+  "twa_mids": [
+    5.0,
+    15.0,
+    25.0,
+    35.0,
+    45.0,
+    55.0,
+    65.0,
+    75.0,
+    85.0,
+    95.0,
+    105.0,
+    115.0,
+    125.0,
+    135.0,
+    145.0,
+    155.0,
+    165.0,
+    175.0
+  ],
+  "tws_mids": [
+    2.0,
+    5.0,
+    7.0,
+    9.0,
+    11.0,
+    13.0,
+    15.0,
+    17.0,
+    19.0,
+    22.5
+  ],
+  "twa_labels": [
+    "0-10",
+    "10-20",
+    "20-30",
+    "30-40",
+    "40-50",
+    "50-60",
+    "60-70",
+    "70-80",
+    "80-90",
+    "90-100",
+    "100-110",
+    "110-120",
+    "120-130",
+    "130-140",
+    "140-150",
+    "150-160",
+    "160-170",
+    "170-180"
+  ],
+  "tws_labels": [
+    "0-4",
+    "4-6",
+    "6-8",
+    "8-10",
+    "10-12",
+    "12-14",
+    "14-16",
+    "16-18",
+    "18-20",
+    "20-25"
+  ],
+  "curves": [
+    {
+      "tws_label": "0-4",
+      "tws_mid": 2.0,
+      "tws_range": [
+        0,
+        4
+      ],
+      "points": [
+        {
+          "twa": 5.0,
+          "stw": 6.0,
+          "measured": true,
+          "minutes": 2.6
+        },
+        {
+          "twa": 15.0,
+          "stw": 6.0,
+          "measured": true,
+          "minutes": 3.4
+        },
+        {
+          "twa": 25.0,
+          "stw": 6.6,
+          "measured": true,
+          "minutes": 4.9
+        },
+        {
+          "twa": 35.0,
+          "stw": 6.7,
+          "measured": true,
+          "minutes": 9.2
+        },
+        {
+          "twa": 45.0,
+          "stw": 5.9,
+          "measured": true,
+          "minutes": 11.6
+        },
+        {
+          "twa": 55.0,
+          "stw": 5.9,
+          "measured": true,
+          "minutes": 9.999999999999998
+        },
+        {
+          "twa": 65.0,
+          "stw": 5.9,
+          "measured": true,
+          "minutes": 10.899999999999999
+        },
+        {
+          "twa": 75.0,
+          "stw": 5.9,
+          "measured": true,
+          "minutes": 14.5
+        },
+        {
+          "twa": 85.0,
+          "stw": 5.9,
+          "measured": true,
+          "minutes": 13.100000000000001
+        },
+        {
+          "twa": 95.0,
+          "stw": 5.9,
+          "measured": true,
+          "minutes": 8.5
+        },
+        {
+          "twa": 105.0,
+          "stw": 6.0,
+          "measured": true,
+          "minutes": 6.0
+        },
+        {
+          "twa": 115.0,
+          "stw": 5.6,
+          "measured": true,
+          "minutes": 4.7
+        },
+        {
+          "twa": 125.0,
+          "stw": 4.8,
+          "measured": true,
+          "minutes": 5.0
+        },
+        {
+          "twa": 135.0,
+          "stw": 4.6,
+          "measured": true,
+          "minutes": 6.2
+        },
+        {
+          "twa": 145.0,
+          "stw": 5.7,
+          "measured": true,
+          "minutes": 3.0999999999999996
+        },
+        {
+          "twa": 155.0,
+          "stw": 5.6,
+          "measured": true,
+          "minutes": 4.1000000000000005
+        },
+        {
+          "twa": 165.0,
+          "stw": 5.3,
+          "measured": true,
+          "minutes": 12.6
+        },
+        {
+          "twa": 175.0,
+          "stw": 5.9,
+          "measured": true,
+          "minutes": 7.800000000000001
+        }
+      ]
+    },
+    {
+      "tws_label": "4-6",
+      "tws_mid": 5.0,
+      "tws_range": [
+        4,
+        6
+      ],
+      "points": [
+        {
+          "twa": 5.0,
+          "stw": 5.8,
+          "measured": true,
+          "minutes": 6.6000000000000005
+        },
+        {
+          "twa": 15.0,
+          "stw": 5.6,
+          "measured": true,
+          "minutes": 7.3999999999999995
+        },
+        {
+          "twa": 25.0,
+          "stw": 5.7,
+          "measured": true,
+          "minutes": 7.800000000000001
+        },
+        {
+          "twa": 35.0,
+          "stw": 5.7,
+          "measured": true,
+          "minutes": 11.300000000000002
+        },
+        {
+          "twa": 45.0,
+          "stw": 5.7,
+          "measured": true,
+          "minutes": 17.500000000000004
+        },
+        {
+          "twa": 55.0,
+          "stw": 5.4,
+          "measured": true,
+          "minutes": 17.900000000000002
+        },
+        {
+          "twa": 65.0,
+          "stw": 5.3,
+          "measured": true,
+          "minutes": 24.8
+        },
+        {
+          "twa": 75.0,
+          "stw": 5.6,
+          "measured": true,
+          "minutes": 20.599999999999998
+        },
+        {
+          "twa": 85.0,
+          "stw": 5.9,
+          "measured": true,
+          "minutes": 18.400000000000002
+        },
+        {
+          "twa": 95.0,
+          "stw": 6.3,
+          "measured": true,
+          "minutes": 29.8
+        },
+        {
+          "twa": 105.0,
+          "stw": 6.4,
+          "measured": true,
+          "minutes": 17.700000000000003
+        },
+        {
+          "twa": 115.0,
+          "stw": 5.9,
+          "measured": true,
+          "minutes": 8.1
+        },
+        {
+          "twa": 125.0,
+          "stw": 5.7,
+          "measured": true,
+          "minutes": 3.5999999999999996
+        },
+        {
+          "twa": 135.0,
+          "stw": 4.9,
+          "measured": true,
+          "minutes": 3.0
+        },
+        {
+          "twa": 145.0,
+          "stw": 5.4,
+          "measured": true,
+          "minutes": 4.9
+        },
+        {
+          "twa": 155.0,
+          "stw": 5.3,
+          "measured": true,
+          "minutes": 4.1
+        },
+        {
+          "twa": 165.0,
+          "stw": 5.1,
+          "measured": true,
+          "minutes": 3.0
+        },
+        {
+          "twa": 175.0,
+          "stw": 5.1,
+          "measured": true,
+          "minutes": 4.6
+        }
+      ]
+    },
+    {
+      "tws_label": "6-8",
+      "tws_mid": 7.0,
+      "tws_range": [
+        6,
+        8
+      ],
+      "points": [
+        {
+          "twa": 5.0,
+          "stw": 5.5,
+          "measured": true,
+          "minutes": 5.6
+        },
+        {
+          "twa": 15.0,
+          "stw": 5.3,
+          "measured": true,
+          "minutes": 8.399999999999999
+        },
+        {
+          "twa": 25.0,
+          "stw": 5.6,
+          "measured": true,
+          "minutes": 16.6
+        },
+        {
+          "twa": 35.0,
+          "stw": 6.0,
+          "measured": true,
+          "minutes": 22.2
+        },
+        {
+          "twa": 45.0,
+          "stw": 6.6,
+          "measured": true,
+          "minutes": 28.7
+        },
+        {
+          "twa": 55.0,
+          "stw": 6.0,
+          "measured": true,
+          "minutes": 27.700000000000003
+        },
+        {
+          "twa": 65.0,
+          "stw": 5.9,
+          "measured": true,
+          "minutes": 22.9
+        },
+        {
+          "twa": 75.0,
+          "stw": 6.3,
+          "measured": true,
+          "minutes": 12.3
+        },
+        {
+          "twa": 85.0,
+          "stw": 6.6,
+          "measured": true,
+          "minutes": 12.2
+        },
+        {
+          "twa": 95.0,
+          "stw": 6.5,
+          "measured": true,
+          "minutes": 16.0
+        },
+        {
+          "twa": 105.0,
+          "stw": 6.5,
+          "measured": true,
+          "minutes": 11.0
+        },
+        {
+          "twa": 115.0,
+          "stw": 6.0,
+          "measured": true,
+          "minutes": 6.7
+        },
+        {
+          "twa": 125.0,
+          "stw": 5.8,
+          "measured": true,
+          "minutes": 5.4
+        },
+        {
+          "twa": 135.0,
+          "stw": 5.4,
+          "measured": true,
+          "minutes": 4.6
+        },
+        {
+          "twa": 145.0,
+          "stw": 4.8,
+          "measured": true,
+          "minutes": 7.7
+        },
+        {
+          "twa": 155.0,
+          "stw": 4.8,
+          "measured": true,
+          "minutes": 11.1
+        },
+        {
+          "twa": 165.0,
+          "stw": 4.3,
+          "measured": true,
+          "minutes": 6.700000000000001
+        },
+        {
+          "twa": 175.0,
+          "stw": 4.5,
+          "measured": true,
+          "minutes": 7.8
+        }
+      ]
+    },
+    {
+      "tws_label": "8-10",
+      "tws_mid": 9.0,
+      "tws_range": [
+        8,
+        10
+      ],
+      "points": [
+        {
+          "twa": 5.0,
+          "stw": 5.2,
+          "measured": true,
+          "minutes": 6.499999999999999
+        },
+        {
+          "twa": 15.0,
+          "stw": 5.4,
+          "measured": true,
+          "minutes": 12.6
+        },
+        {
+          "twa": 25.0,
+          "stw": 5.9,
+          "measured": true,
+          "minutes": 23.0
+        },
+        {
+          "twa": 35.0,
+          "stw": 6.7,
+          "measured": true,
+          "minutes": 37.1
+        },
+        {
+          "twa": 45.0,
+          "stw": 6.8,
+          "measured": true,
+          "minutes": 23.9
+        },
+        {
+          "twa": 55.0,
+          "stw": 6.8,
+          "measured": true,
+          "minutes": 28.9
+        },
+        {
+          "twa": 65.0,
+          "stw": 6.7,
+          "measured": true,
+          "minutes": 21.299999999999997
+        },
+        {
+          "twa": 75.0,
+          "stw": 6.8,
+          "measured": true,
+          "minutes": 12.6
+        },
+        {
+          "twa": 85.0,
+          "stw": 6.5,
+          "measured": true,
+          "minutes": 11.1
+        },
+        {
+          "twa": 95.0,
+          "stw": 6.4,
+          "measured": true,
+          "minutes": 13.1
+        },
+        {
+          "twa": 105.0,
+          "stw": 6.6,
+          "measured": true,
+          "minutes": 9.9
+        },
+        {
+          "twa": 115.0,
+          "stw": 6.7,
+          "measured": true,
+          "minutes": 8.1
+        },
+        {
+          "twa": 125.0,
+          "stw": 6.2,
+          "measured": true,
+          "minutes": 5.7
+        },
+        {
+          "twa": 135.0,
+          "stw": 5.8,
+          "measured": true,
+          "minutes": 6.0
+        },
+        {
+          "twa": 145.0,
+          "stw": 5.8,
+          "measured": true,
+          "minutes": 13.3
+        },
+        {
+          "twa": 155.0,
+          "stw": 5.6,
+          "measured": true,
+          "minutes": 11.899999999999999
+        },
+        {
+          "twa": 165.0,
+          "stw": 5.0,
+          "measured": true,
+          "minutes": 9.0
+        },
+        {
+          "twa": 175.0,
+          "stw": 6.5,
+          "measured": true,
+          "minutes": 7.799999999999999
+        }
+      ]
+    },
+    {
+      "tws_label": "10-12",
+      "tws_mid": 11.0,
+      "tws_range": [
+        10,
+        12
+      ],
+      "points": [
+        {
+          "twa": 5.0,
+          "stw": 5.0,
+          "measured": true,
+          "minutes": 5.800000000000001
+        },
+        {
+          "twa": 15.0,
+          "stw": 5.7,
+          "measured": true,
+          "minutes": 10.200000000000001
+        },
+        {
+          "twa": 25.0,
+          "stw": 6.8,
+          "measured": true,
+          "minutes": 31.3
+        },
+        {
+          "twa": 35.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 34.5
+        },
+        {
+          "twa": 45.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 26.8
+        },
+        {
+          "twa": 55.0,
+          "stw": 7.0,
+          "measured": true,
+          "minutes": 28.1
+        },
+        {
+          "twa": 65.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 8.299999999999999
+        },
+        {
+          "twa": 75.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 5.699999999999999
+        },
+        {
+          "twa": 85.0,
+          "stw": 7.5,
+          "measured": true,
+          "minutes": 6.6
+        },
+        {
+          "twa": 95.0,
+          "stw": 7.1,
+          "measured": true,
+          "minutes": 10.899999999999999
+        },
+        {
+          "twa": 105.0,
+          "stw": 7.0,
+          "measured": true,
+          "minutes": 13.7
+        },
+        {
+          "twa": 115.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 10.799999999999999
+        },
+        {
+          "twa": 125.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 5.9
+        },
+        {
+          "twa": 135.0,
+          "stw": 6.8,
+          "measured": true,
+          "minutes": 6.1
+        },
+        {
+          "twa": 145.0,
+          "stw": 6.7,
+          "measured": true,
+          "minutes": 8.2
+        },
+        {
+          "twa": 155.0,
+          "stw": 5.9,
+          "measured": true,
+          "minutes": 8.600000000000001
+        },
+        {
+          "twa": 165.0,
+          "stw": 6.0,
+          "measured": true,
+          "minutes": 6.8
+        },
+        {
+          "twa": 175.0,
+          "stw": 7.3,
+          "measured": true,
+          "minutes": 8.5
+        }
+      ]
+    },
+    {
+      "tws_label": "12-14",
+      "tws_mid": 13.0,
+      "tws_range": [
+        12,
+        14
+      ],
+      "points": [
+        {
+          "twa": 5.0,
+          "stw": 4.7,
+          "measured": true,
+          "minutes": 1.3000000000000003
+        },
+        {
+          "twa": 15.0,
+          "stw": 5.3,
+          "measured": true,
+          "minutes": 2.3
+        },
+        {
+          "twa": 25.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 19.9
+        },
+        {
+          "twa": 35.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 20.4
+        },
+        {
+          "twa": 45.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 27.7
+        },
+        {
+          "twa": 55.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 13.4
+        },
+        {
+          "twa": 65.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 7.5
+        },
+        {
+          "twa": 75.0,
+          "stw": 7.2,
+          "measured": true,
+          "minutes": 8.4
+        },
+        {
+          "twa": 85.0,
+          "stw": 7.6,
+          "measured": true,
+          "minutes": 8.0
+        },
+        {
+          "twa": 95.0,
+          "stw": 7.8,
+          "measured": true,
+          "minutes": 11.9
+        },
+        {
+          "twa": 105.0,
+          "stw": 7.7,
+          "measured": true,
+          "minutes": 16.2
+        },
+        {
+          "twa": 115.0,
+          "stw": 7.8,
+          "measured": true,
+          "minutes": 13.100000000000001
+        },
+        {
+          "twa": 125.0,
+          "stw": 7.7,
+          "measured": true,
+          "minutes": 15.8
+        },
+        {
+          "twa": 135.0,
+          "stw": 7.7,
+          "measured": true,
+          "minutes": 14.8
+        },
+        {
+          "twa": 145.0,
+          "stw": 7.6,
+          "measured": true,
+          "minutes": 10.7
+        },
+        {
+          "twa": 155.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 10.799999999999999
+        },
+        {
+          "twa": 165.0,
+          "stw": 7.5,
+          "measured": true,
+          "minutes": 9.0
+        },
+        {
+          "twa": 175.0,
+          "stw": 7.8,
+          "measured": true,
+          "minutes": 10.1
+        }
+      ]
+    },
+    {
+      "tws_label": "14-16",
+      "tws_mid": 15.0,
+      "tws_range": [
+        14,
+        16
+      ],
+      "points": [
+        {
+          "twa": 5.0,
+          "stw": 4.5,
+          "measured": false,
+          "minutes": 0.4
+        },
+        {
+          "twa": 15.0,
+          "stw": 6.3,
+          "measured": true,
+          "minutes": 3.5000000000000004
+        },
+        {
+          "twa": 25.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 17.1
+        },
+        {
+          "twa": 35.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 16.3
+        },
+        {
+          "twa": 45.0,
+          "stw": 7.0,
+          "measured": true,
+          "minutes": 27.3
+        },
+        {
+          "twa": 55.0,
+          "stw": 7.2,
+          "measured": true,
+          "minutes": 10.0
+        },
+        {
+          "twa": 65.0,
+          "stw": 7.0,
+          "measured": true,
+          "minutes": 9.099999999999998
+        },
+        {
+          "twa": 75.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 13.699999999999998
+        },
+        {
+          "twa": 85.0,
+          "stw": 7.1,
+          "measured": true,
+          "minutes": 8.9
+        },
+        {
+          "twa": 95.0,
+          "stw": 7.7,
+          "measured": true,
+          "minutes": 3.8000000000000003
+        },
+        {
+          "twa": 105.0,
+          "stw": 7.8,
+          "measured": true,
+          "minutes": 5.7
+        },
+        {
+          "twa": 115.0,
+          "stw": 7.9,
+          "measured": true,
+          "minutes": 8.8
+        },
+        {
+          "twa": 125.0,
+          "stw": 8.0,
+          "measured": true,
+          "minutes": 10.2
+        },
+        {
+          "twa": 135.0,
+          "stw": 7.8,
+          "measured": true,
+          "minutes": 10.8
+        },
+        {
+          "twa": 145.0,
+          "stw": 7.9,
+          "measured": true,
+          "minutes": 12.8
+        },
+        {
+          "twa": 155.0,
+          "stw": 7.8,
+          "measured": true,
+          "minutes": 12.8
+        },
+        {
+          "twa": 165.0,
+          "stw": 7.9,
+          "measured": true,
+          "minutes": 15.6
+        },
+        {
+          "twa": 175.0,
+          "stw": 7.8,
+          "measured": true,
+          "minutes": 5.300000000000001
+        }
+      ]
+    },
+    {
+      "tws_label": "16-18",
+      "tws_mid": 17.0,
+      "tws_range": [
+        16,
+        18
+      ],
+      "points": [
+        {
+          "twa": 5.0,
+          "stw": 4.2,
+          "measured": false,
+          "minutes": 0.0
+        },
+        {
+          "twa": 15.0,
+          "stw": 5.7,
+          "measured": true,
+          "minutes": 2.4
+        },
+        {
+          "twa": 25.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 8.0
+        },
+        {
+          "twa": 35.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 7.800000000000001
+        },
+        {
+          "twa": 45.0,
+          "stw": 7.0,
+          "measured": true,
+          "minutes": 17.299999999999997
+        },
+        {
+          "twa": 55.0,
+          "stw": 7.3,
+          "measured": true,
+          "minutes": 9.8
+        },
+        {
+          "twa": 65.0,
+          "stw": 7.0,
+          "measured": true,
+          "minutes": 13.899999999999999
+        },
+        {
+          "twa": 75.0,
+          "stw": 7.2,
+          "measured": true,
+          "minutes": 15.1
+        },
+        {
+          "twa": 85.0,
+          "stw": 7.8,
+          "measured": true,
+          "minutes": 12.6
+        },
+        {
+          "twa": 95.0,
+          "stw": 7.3,
+          "measured": true,
+          "minutes": 5.3
+        },
+        {
+          "twa": 105.0,
+          "stw": 7.7,
+          "measured": true,
+          "minutes": 4.8999999999999995
+        },
+        {
+          "twa": 115.0,
+          "stw": 8.0,
+          "measured": true,
+          "minutes": 6.5
+        },
+        {
+          "twa": 125.0,
+          "stw": 8.0,
+          "measured": true,
+          "minutes": 9.8
+        },
+        {
+          "twa": 135.0,
+          "stw": 7.9,
+          "measured": true,
+          "minutes": 7.299999999999999
+        },
+        {
+          "twa": 145.0,
+          "stw": 8.0,
+          "measured": true,
+          "minutes": 6.7
+        },
+        {
+          "twa": 155.0,
+          "stw": 7.9,
+          "measured": true,
+          "minutes": 6.9
+        },
+        {
+          "twa": 165.0,
+          "stw": 8.0,
+          "measured": true,
+          "minutes": 6.5
+        },
+        {
+          "twa": 175.0,
+          "stw": 7.9,
+          "measured": true,
+          "minutes": 2.1999999999999997
+        }
+      ]
+    },
+    {
+      "tws_label": "18-20",
+      "tws_mid": 19.0,
+      "tws_range": [
+        18,
+        20
+      ],
+      "points": [
+        {
+          "twa": 5.0,
+          "stw": 4.0,
+          "measured": false,
+          "minutes": 0.2
+        },
+        {
+          "twa": 15.0,
+          "stw": 5.4,
+          "measured": false,
+          "minutes": 0.6
+        },
+        {
+          "twa": 25.0,
+          "stw": 6.3,
+          "measured": true,
+          "minutes": 2.3
+        },
+        {
+          "twa": 35.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 3.8
+        },
+        {
+          "twa": 45.0,
+          "stw": 7.0,
+          "measured": true,
+          "minutes": 5.6000000000000005
+        },
+        {
+          "twa": 55.0,
+          "stw": 7.6,
+          "measured": true,
+          "minutes": 4.1000000000000005
+        },
+        {
+          "twa": 65.0,
+          "stw": 7.0,
+          "measured": true,
+          "minutes": 4.0
+        },
+        {
+          "twa": 75.0,
+          "stw": 7.7,
+          "measured": true,
+          "minutes": 4.7
+        },
+        {
+          "twa": 85.0,
+          "stw": 7.8,
+          "measured": true,
+          "minutes": 5.4
+        },
+        {
+          "twa": 95.0,
+          "stw": 7.5,
+          "measured": true,
+          "minutes": 2.9000000000000004
+        },
+        {
+          "twa": 105.0,
+          "stw": 7.4,
+          "measured": true,
+          "minutes": 3.1000000000000005
+        },
+        {
+          "twa": 115.0,
+          "stw": 7.8,
+          "measured": true,
+          "minutes": 2.5999999999999996
+        },
+        {
+          "twa": 125.0,
+          "stw": 8.0,
+          "measured": true,
+          "minutes": 4.3999999999999995
+        },
+        {
+          "twa": 135.0,
+          "stw": 8.0,
+          "measured": true,
+          "minutes": 4.0
+        },
+        {
+          "twa": 145.0,
+          "stw": 7.9,
+          "measured": true,
+          "minutes": 8.799999999999999
+        },
+        {
+          "twa": 155.0,
+          "stw": 7.9,
+          "measured": true,
+          "minutes": 6.0
+        },
+        {
+          "twa": 165.0,
+          "stw": 7.9,
+          "measured": true,
+          "minutes": 4.5
+        },
+        {
+          "twa": 175.0,
+          "stw": 7.9,
+          "measured": true,
+          "minutes": 1.4
+        }
+      ]
+    },
+    {
+      "tws_label": "20-25",
+      "tws_mid": 22.5,
+      "tws_range": [
+        20,
+        25
+      ],
+      "points": [
+        {
+          "twa": 5.0,
+          "stw": 3.8,
+          "measured": false,
+          "minutes": 0.0
+        },
+        {
+          "twa": 15.0,
+          "stw": 5.1,
+          "measured": false,
+          "minutes": 0.0
+        },
+        {
+          "twa": 25.0,
+          "stw": 6.0,
+          "measured": false,
+          "minutes": 0.5
+        },
+        {
+          "twa": 35.0,
+          "stw": 6.4,
+          "measured": true,
+          "minutes": 2.8000000000000003
+        },
+        {
+          "twa": 45.0,
+          "stw": 6.9,
+          "measured": true,
+          "minutes": 3.9000000000000004
+        },
+        {
+          "twa": 55.0,
+          "stw": 7.2,
+          "measured": true,
+          "minutes": 1.0
+        },
+        {
+          "twa": 65.0,
+          "stw": 6.8,
+          "measured": true,
+          "minutes": 2.2
+        },
+        {
+          "twa": 75.0,
+          "stw": 6.8,
+          "measured": true,
+          "minutes": 2.6000000000000005
+        },
+        {
+          "twa": 85.0,
+          "stw": 7.4,
+          "measured": true,
+          "minutes": 2.1
+        },
+        {
+          "twa": 95.0,
+          "stw": 6.9,
+          "measured": false,
+          "minutes": 0.8
+        },
+        {
+          "twa": 105.0,
+          "stw": 7.9,
+          "measured": true,
+          "minutes": 1.5999999999999999
+        },
+        {
+          "twa": 115.0,
+          "stw": 9.4,
+          "measured": true,
+          "minutes": 4.0
+        },
+        {
+          "twa": 125.0,
+          "stw": 9.2,
+          "measured": true,
+          "minutes": 4.7
+        },
+        {
+          "twa": 135.0,
+          "stw": 8.3,
+          "measured": true,
+          "minutes": 4.3
+        },
+        {
+          "twa": 145.0,
+          "stw": 9.1,
+          "measured": true,
+          "minutes": 2.9
+        },
+        {
+          "twa": 155.0,
+          "stw": 9.2,
+          "measured": true,
+          "minutes": 3.0999999999999996
+        },
+        {
+          "twa": 165.0,
+          "stw": 9.2,
+          "measured": true,
+          "minutes": 2.8999999999999995
+        },
+        {
+          "twa": 175.0,
+          "stw": 9.2,
+          "measured": false,
+          "minutes": 0.2
+        }
+      ]
+    }
+  ],
+  "table": {
+    "5|2": 6.0,
+    "5|5": 5.8,
+    "5|7": 5.5,
+    "5|9": 5.2,
+    "5|11": 5.0,
+    "5|13": 4.7,
+    "5|15": 4.5,
+    "5|17": 4.2,
+    "5|19": 4.0,
+    "5|22": 3.8,
+    "15|2": 6.0,
+    "15|5": 5.6,
+    "15|7": 5.3,
+    "15|9": 5.4,
+    "15|11": 5.7,
+    "15|13": 5.3,
+    "15|15": 6.3,
+    "15|17": 5.7,
+    "15|19": 5.4,
+    "15|22": 5.1,
+    "25|2": 6.6,
+    "25|5": 5.7,
+    "25|7": 5.6,
+    "25|9": 5.9,
+    "25|11": 6.8,
+    "25|13": 6.9,
+    "25|15": 6.9,
+    "25|17": 6.9,
+    "25|19": 6.3,
+    "25|22": 6.0,
+    "35|2": 6.7,
+    "35|5": 5.7,
+    "35|7": 6.0,
+    "35|9": 6.7,
+    "35|11": 6.9,
+    "35|13": 6.9,
+    "35|15": 6.9,
+    "35|17": 6.9,
+    "35|19": 6.9,
+    "35|22": 6.4,
+    "45|2": 5.9,
+    "45|5": 5.7,
+    "45|7": 6.6,
+    "45|9": 6.8,
+    "45|11": 6.9,
+    "45|13": 6.9,
+    "45|15": 7.0,
+    "45|17": 7.0,
+    "45|19": 7.0,
+    "45|22": 6.9,
+    "55|2": 5.9,
+    "55|5": 5.4,
+    "55|7": 6.0,
+    "55|9": 6.8,
+    "55|11": 7.0,
+    "55|13": 6.9,
+    "55|15": 7.2,
+    "55|17": 7.3,
+    "55|19": 7.6,
+    "55|22": 7.2,
+    "65|2": 5.9,
+    "65|5": 5.3,
+    "65|7": 5.9,
+    "65|9": 6.7,
+    "65|11": 6.9,
+    "65|13": 6.9,
+    "65|15": 7.0,
+    "65|17": 7.0,
+    "65|19": 7.0,
+    "65|22": 6.8,
+    "75|2": 5.9,
+    "75|5": 5.6,
+    "75|7": 6.3,
+    "75|9": 6.8,
+    "75|11": 6.9,
+    "75|13": 7.2,
+    "75|15": 6.9,
+    "75|17": 7.2,
+    "75|19": 7.7,
+    "75|22": 6.8,
+    "85|2": 5.9,
+    "85|5": 5.9,
+    "85|7": 6.6,
+    "85|9": 6.5,
+    "85|11": 7.5,
+    "85|13": 7.6,
+    "85|15": 7.1,
+    "85|17": 7.8,
+    "85|19": 7.8,
+    "85|22": 7.4,
+    "95|2": 5.9,
+    "95|5": 6.3,
+    "95|7": 6.5,
+    "95|9": 6.4,
+    "95|11": 7.1,
+    "95|13": 7.8,
+    "95|15": 7.7,
+    "95|17": 7.3,
+    "95|19": 7.5,
+    "95|22": 6.9,
+    "105|2": 6.0,
+    "105|5": 6.4,
+    "105|7": 6.5,
+    "105|9": 6.6,
+    "105|11": 7.0,
+    "105|13": 7.7,
+    "105|15": 7.8,
+    "105|17": 7.7,
+    "105|19": 7.4,
+    "105|22": 7.9,
+    "115|2": 5.6,
+    "115|5": 5.9,
+    "115|7": 6.0,
+    "115|9": 6.7,
+    "115|11": 6.9,
+    "115|13": 7.8,
+    "115|15": 7.9,
+    "115|17": 8.0,
+    "115|19": 7.8,
+    "115|22": 9.4,
+    "125|2": 4.8,
+    "125|5": 5.7,
+    "125|7": 5.8,
+    "125|9": 6.2,
+    "125|11": 6.9,
+    "125|13": 7.7,
+    "125|15": 8.0,
+    "125|17": 8.0,
+    "125|19": 8.0,
+    "125|22": 9.2,
+    "135|2": 4.6,
+    "135|5": 4.9,
+    "135|7": 5.4,
+    "135|9": 5.8,
+    "135|11": 6.8,
+    "135|13": 7.7,
+    "135|15": 7.8,
+    "135|17": 7.9,
+    "135|19": 8.0,
+    "135|22": 8.3,
+    "145|2": 5.7,
+    "145|5": 5.4,
+    "145|7": 4.8,
+    "145|9": 5.8,
+    "145|11": 6.7,
+    "145|13": 7.6,
+    "145|15": 7.9,
+    "145|17": 8.0,
+    "145|19": 7.9,
+    "145|22": 9.1,
+    "155|2": 5.6,
+    "155|5": 5.3,
+    "155|7": 4.8,
+    "155|9": 5.6,
+    "155|11": 5.9,
+    "155|13": 6.9,
+    "155|15": 7.8,
+    "155|17": 7.9,
+    "155|19": 7.9,
+    "155|22": 9.2,
+    "165|2": 5.3,
+    "165|5": 5.1,
+    "165|7": 4.3,
+    "165|9": 5.0,
+    "165|11": 6.0,
+    "165|13": 7.5,
+    "165|15": 7.9,
+    "165|17": 8.0,
+    "165|19": 7.9,
+    "165|22": 9.2,
+    "175|2": 5.9,
+    "175|5": 5.1,
+    "175|7": 4.5,
+    "175|9": 6.5,
+    "175|11": 7.3,
+    "175|13": 7.8,
+    "175|15": 7.8,
+    "175|17": 7.9,
+    "175|19": 7.9,
+    "175|22": 9.2
+  }
+}
